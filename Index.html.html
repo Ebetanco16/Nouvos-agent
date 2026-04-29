@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nouvos ONE — Social Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0f12;
+  --surface: #161a1f;
+  --surface2: #1e2530;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0ede8;
+  --muted: #7a8494;
+  --accent-gold: #c9a84c;
+  --accent-gold-dim: rgba(201,168,76,0.12);
+  --fb: #4a90d9;    --fb-dim: rgba(74,144,217,0.1);
+  --ig: #d4607a;    --ig-dim: rgba(212,96,122,0.1);
+  --li: #4ea8c9;    --li-dim: rgba(78,168,201,0.1);
+  --x:  #a0aab8;    --x-dim:  rgba(160,170,184,0.1);
+  --node:   #5bb89a;  --node-dim:   rgba(91,184,154,0.1);
+  --vector: #7c83d4;  --vector-dim: rgba(124,131,212,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --email: #d48c3a; --email-dim: rgba(212,140,58,0.1);
+  --kling: #e8a020;  --kling-dim: rgba(232,160,32,0.1);
+  --vid:   #9b6dd4;  --vid-dim:   rgba(155,109,212,0.1);
+  --img:   #3da4a8;  --img-dim:   rgba(61,164,168,0.1);
+}
+
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:2rem 1rem; }
+.container { max-width:860px; margin:0 auto; }
+
+.header { text-align:center; margin-bottom:2.5rem; animation:fadeUp .6s ease both; }
+.logo-row { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:.6rem; }
+.logo-mark { width:40px; height:40px; border-radius:10px; background:var(--accent-gold); display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-size:20px; color:#0d0f12; }
+.logo-text { font-family:'DM Serif Display',serif; font-size:26px; letter-spacing:.02em; }
+.logo-text span { color:var(--accent-gold); }
+.header-sub { font-size:12px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+
+.nav-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:2rem; }
+.nav-tab { padding:.65rem 1.25rem; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; background:none; border-top:none; border-left:none; border-right:none; font-family:'DM Sans',sans-serif; margin-bottom:-1px; }
+.nav-tab:hover { color:var(--text); }
+.nav-tab.active { color:var(--accent-gold); border-bottom-color:var(--accent-gold); }
+
+.view { display:none; }
+.view.active { display:block; animation:fadeUp .35s ease both; }
+
+.panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.6rem 1.75rem; margin-bottom:1.25rem; }
+.panel-label { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; }
+
+.platform-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.platform-btn { padding:.85rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); cursor:pointer; display:flex; align-items:center; gap:10px; transition:all .2s; text-align:left; }
+.platform-btn:hover { border-color:var(--border2); }
+.platform-btn.active[data-plat="fb"] { border-color:var(--fb); background:var(--fb-dim); }
+.platform-btn.active[data-plat="ig"] { border-color:var(--ig); background:var(--ig-dim); }
+.platform-btn.active[data-plat="li"] { border-color:var(--li); background:var(--li-dim); }
+.platform-btn.active[data-plat="x"]  { border-color:var(--x);  background:var(--x-dim);  }
+.plat-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.plat-icon.fb { background:var(--fb-dim); } .plat-icon.ig { background:var(--ig-dim); }
+.plat-icon.li { background:var(--li-dim); } .plat-icon.x  { background:var(--x-dim);  }
+.platform-name { font-size:14px; font-weight:500; }
+.platform-desc { font-size:11px; color:var(--muted); margin-top:2px; }
+
+.x-format-row { display:flex; gap:8px; margin-top:.75rem; }
+.format-btn { padding:5px 14px; border-radius:999px; border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; transition:all .15s; }
+.format-btn:hover { border-color:var(--x); color:var(--x); }
+.format-btn.active { background:var(--x-dim); border-color:var(--x); color:var(--x); }
+.x-note { font-size:11px; color:var(--muted); margin-top:.5rem; line-height:1.5; }
+
+.product-btn { padding:1rem 1.25rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); cursor:pointer; transition:all .2s; text-align:left; }
+.product-btn:hover { border-color:var(--border2); }
+.product-btn.active[data-prod="node"]      { border-color:var(--node);   background:var(--node-dim);   }
+.product-btn.active[data-prod="vector"]   { border-color:var(--vector); background:var(--vector-dim); }
+.product-btn.active[data-prod="fbrokerage"]  { border-color:#5bb89a; background:rgba(91,184,154,0.08); }
+.product-btn.active[data-prod="fforwarding"] { border-color:#4ea8c9; background:rgba(78,168,201,0.08); }
+.product-btn.active[data-prod="barge"]       { border-color:#7c83d4; background:rgba(124,131,212,0.08); }
+.product-btn.active[data-prod="vnode"]       { border-color:var(--node);   background:var(--node-dim);   }
+.product-btn.active[data-prod="vvector"]     { border-color:var(--vector); background:var(--vector-dim); }
+.product-btn.active[data-prod="vfbrokerage"] { border-color:#5bb89a; background:rgba(91,184,154,0.08); }
+.product-btn.active[data-prod="vfforwarding"]{ border-color:#4ea8c9; background:rgba(78,168,201,0.08); }
+.product-btn.active[data-prod="vbarge"]      { border-color:#7c83d4; background:rgba(124,131,212,0.08); }
+.product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.product-tag { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+.product-tag.node { color:var(--node); } .product-tag.vector { color:var(--vector); }
+.product-name { font-size:15px; font-weight:500; margin-bottom:4px; }
+.product-desc { font-size:11px; color:var(--muted); line-height:1.5; }
+
+.topic-area { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.9rem 1rem; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); resize:vertical; min-height:90px; transition:border-color .2s; line-height:1.6; }
+.topic-area:focus { outline:none; border-color:var(--accent-gold); }
+.topic-area::placeholder { color:var(--muted); }
+.hint-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.hint-chip { padding:4px 10px; border-radius:999px; border:1px solid var(--border2); font-size:11px; color:var(--muted); cursor:pointer; transition:all .15s; background:transparent; font-family:'DM Sans',sans-serif; }
+.hint-chip:hover { border-color:var(--accent-gold); color:var(--accent-gold); }
+
+.generate-btn { width:100%; padding:1rem; border-radius:var(--radius-sm); border:none; background:var(--accent-gold); color:#0d0f12; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:.02em; display:flex; align-items:center; justify-content:center; gap:8px; }
+.generate-btn:hover:not(:disabled) { background:#d4ae5c; transform:translateY(-1px); }
+.generate-btn:disabled { background:#3a3020; color:#6a5a30; cursor:not-allowed; transform:none; }
+.spinner { width:16px; height:16px; border:2px solid rgba(0,0,0,0.2); border-top-color:#0d0f12; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+.generating .spinner { display:block; }
+
+.output-area { display:none; margin-top:1.5rem; animation:fadeUp .4s ease both; }
+.output-area.visible { display:block; }
+.output-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:8px; }
+.output-title { font-size:13px; font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.output-badge { font-size:10px; padding:3px 8px; border-radius:999px; font-weight:600; letter-spacing:.05em; }
+.badge-fb { background:var(--fb-dim); color:var(--fb); border:1px solid var(--fb); }
+.badge-ig { background:var(--ig-dim); color:var(--ig); border:1px solid var(--ig); }
+.badge-li { background:var(--li-dim); color:var(--li); border:1px solid var(--li); }
+.badge-x  { background:var(--x-dim);  color:var(--x);  border:1px solid var(--x);  }
+.badge-node   { background:var(--node-dim);   color:var(--node);   border:1px solid var(--node);   }
+.badge-vector { background:var(--vector-dim); color:var(--vector); border:1px solid var(--vector); }
+.output-actions { display:flex; gap:8px; }
+.action-btn { padding:5px 14px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; transition:all .15s; }
+.action-btn:hover { border-color:var(--accent-gold); color:var(--accent-gold); }
+
+.post-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1rem; }
+.post-card-header { padding:.7rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface2); }
+.post-card-label { font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+.card-btns { display:flex; gap:6px; }
+.copy-btn { padding:3px 12px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; transition:all .15s; }
+.copy-btn:hover { color:var(--accent-gold); border-color:var(--accent-gold); }
+.copy-btn.copied { color:var(--node); border-color:var(--node); }
+.save-btn { padding:3px 12px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; transition:all .15s; }
+.save-btn:hover { color:var(--accent-gold); border-color:var(--accent-gold); }
+.save-btn.saved { color:var(--accent-gold); border-color:var(--accent-gold); background:var(--accent-gold-dim); }
+.post-body { padding:1.25rem; font-size:14px; line-height:1.85; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.post-meta { padding:.7rem 1.25rem; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.meta-pill { font-size:11px; padding:2px 8px; border-radius:999px; background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
+.visual-note { font-size:11px; color:var(--accent-gold); padding:2px 8px; border-radius:999px; background:var(--accent-gold-dim); border:1px solid rgba(201,168,76,0.25); }
+
+.error-box { background:rgba(212,96,122,0.08); border:1px solid rgba(212,96,122,0.3); border-radius:var(--radius-sm); padding:1rem; font-size:13px; color:#d4607a; display:none; margin-top:1rem; }
+.error-box.visible { display:block; }
+
+/* History */
+.history-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:10px; }
+.history-filters { display:flex; gap:6px; flex-wrap:wrap; }
+.filter-chip { padding:4px 12px; border-radius:999px; border:1px solid var(--border2); font-size:12px; color:var(--muted); cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.filter-chip:hover { color:var(--text); }
+.filter-chip.active { background:var(--accent-gold-dim); border-color:var(--accent-gold); color:var(--accent-gold); }
+.clear-all-btn { padding:4px 14px; border-radius:var(--radius-sm); border:1px solid rgba(212,96,122,0.3); background:transparent; color:#d4607a; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; transition:all .15s; }
+.clear-all-btn:hover { background:rgba(212,96,122,0.08); }
+
+.history-empty { text-align:center; padding:4rem 2rem; color:var(--muted); }
+.history-empty-icon { font-size:36px; margin-bottom:1rem; opacity:.4; }
+.history-empty p { font-size:14px; margin-bottom:.5rem; }
+.history-empty small { font-size:12px; }
+
+.history-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1rem; }
+.history-card-header { padding:.7rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface2); flex-wrap:wrap; gap:8px; }
+.history-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.history-date { font-size:11px; color:var(--muted); }
+.history-actions { display:flex; gap:6px; }
+.hist-btn { padding:3px 10px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; transition:all .15s; }
+.hist-btn:hover { color:var(--accent-gold); border-color:var(--accent-gold); }
+.hist-btn.copied { color:var(--node); border-color:var(--node); }
+.hist-btn.saved-state { color:var(--accent-gold); border-color:var(--accent-gold); background:var(--accent-gold-dim); }
+.hist-del-btn { padding:3px 10px; border-radius:var(--radius-sm); border:1px solid rgba(212,96,122,0.25); background:transparent; color:rgba(212,96,122,0.7); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; transition:all .15s; }
+.hist-del-btn:hover { background:rgba(212,96,122,0.08); color:#d4607a; }
+.history-topic { padding:.65rem 1.25rem; font-size:12px; color:var(--muted); border-bottom:1px solid var(--border); font-style:italic; }
+.history-body { padding:1.1rem 1.25rem; font-size:14px; line-height:1.8; color:var(--text); white-space:pre-wrap; word-break:break-word; max-height:200px; overflow:hidden; position:relative; }
+.history-body.expanded { max-height:none; }
+.fade-overlay { position:absolute; bottom:0; left:0; right:0; height:60px; background:linear-gradient(transparent, var(--surface)); pointer-events:none; }
+.history-body.expanded .fade-overlay { display:none; }
+.expand-btn { padding:.5rem 1.25rem; font-size:11px; color:var(--muted); cursor:pointer; background:none; border:none; font-family:'DM Sans',sans-serif; width:100%; text-align:left; border-top:1px solid var(--border); transition:color .15s; }
+.expand-btn:hover { color:var(--accent-gold); }
+.draft-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent-gold); margin-right:2px; vertical-align:middle; }
+
+/* API Key Panel */
+.apikey-panel { background:var(--surface); border:1px solid rgba(201,168,76,0.25); border-radius:var(--radius); padding:1.25rem 1.5rem; margin-bottom:1.5rem; animation:fadeUp .4s ease both; }
+.apikey-top { display:flex; align-items:center; gap:10px; margin-bottom:.75rem; }
+.apikey-icon { width:30px; height:30px; border-radius:8px; background:var(--accent-gold-dim); border:1px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.apikey-title { font-size:13px; font-weight:500; }
+.apikey-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.apikey-row { display:flex; gap:8px; align-items:center; }
+.apikey-input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.65rem .9rem; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--text); transition:border-color .2s; letter-spacing:.05em; }
+.apikey-input:focus { outline:none; border-color:var(--accent-gold); }
+.apikey-input::placeholder { color:var(--muted); letter-spacing:normal; }
+.apikey-save-btn { padding:.65rem 1.1rem; border-radius:var(--radius-sm); border:1px solid rgba(201,168,76,0.4); background:var(--accent-gold-dim); color:var(--accent-gold); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; }
+.apikey-save-btn:hover { background:rgba(201,168,76,0.2); }
+.apikey-hint { font-size:11px; color:var(--muted); margin-top:.6rem; line-height:1.5; }
+.apikey-hint a { color:var(--accent-gold); text-decoration:none; }
+.apikey-hint a:hover { text-decoration:underline; }
+.apikey-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; margin-top:.6rem; }
+.status-dot { width:6px; height:6px; border-radius:50%; }
+.status-dot.ok  { background:#5bb89a; }
+.status-dot.err { background:#d4607a; }
+
+
+/* ── VISUAL / KLING ── */
+.badge-image { background:var(--img-dim); color:var(--img); border:1px solid var(--img); }
+.badge-video { background:var(--vid-dim); color:var(--vid); border:1px solid var(--vid); }
+.badge-kling { background:var(--kling-dim); color:var(--kling); border:1px solid var(--kling); }
+
+.media-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.media-btn { padding:1.1rem 1.25rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); cursor:pointer; display:flex; align-items:center; gap:12px; transition:all .2s; text-align:left; }
+.media-btn:hover { border-color:var(--border2); }
+.media-btn.active[data-media="image"] { border-color:var(--img); background:var(--img-dim); }
+.media-btn.active[data-media="video"] { border-color:var(--vid); background:var(--vid-dim); }
+.media-icon { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:18px; }
+.media-icon.image { background:var(--img-dim); }
+.media-icon.video { background:var(--vid-dim); }
+.media-title { font-size:15px; font-weight:500; }
+.media-desc  { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4; }
+
+.options-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.option-group { display:flex; flex-direction:column; gap:6px; }
+.option-label { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.option-select { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.6rem .85rem; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--text); cursor:pointer; transition:border-color .2s; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a8494' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .75rem center; padding-right:2rem; }
+.option-select:focus { outline:none; border-color:var(--accent-gold); }
+.video-only { display:none; }
+.video-only.show { display:block; }
+
+.kling-output { display:none; margin-top:1.5rem; animation:fadeUp .4s ease both; }
+.kling-output.visible { display:block; }
+.kling-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1rem; }
+.kling-card-header { padding:.7rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface2); flex-wrap:wrap; gap:8px; }
+.kling-card-title { font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+.kling-body { padding:1.25rem; font-size:14px; line-height:1.85; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.kling-section { margin-bottom:1.25rem; }
+.kling-section:last-child { margin-bottom:0; }
+.kling-section-label { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--kling); margin-bottom:.5rem; display:flex; align-items:center; gap:6px; }
+.kling-section-label::after { content:''; flex:1; height:1px; background:rgba(232,160,32,0.15); }
+.kling-prompt-text { font-size:13px; line-height:1.8; color:var(--text); background:var(--surface2); border-radius:var(--radius-sm); padding:1rem; border:1px solid var(--border); white-space:pre-wrap; word-break:break-word; }
+.kling-specs { display:flex; flex-wrap:wrap; gap:6px; margin-top:.75rem; }
+.kling-spec-pill { font-size:11px; padding:3px 10px; border-radius:999px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); display:flex; align-items:center; gap:5px; }
+.kling-spec-pill span { color:var(--text); font-weight:500; }
+.kling-tip { background:rgba(232,160,32,0.06); border:1px solid rgba(232,160,32,0.18); border-radius:var(--radius-sm); padding:.8rem 1rem; font-size:12px; color:rgba(232,160,32,0.85); line-height:1.6; margin-top:1rem; }
+.kling-tip strong { color:var(--kling); }
+
+.gen-visual-btn { width:100%; padding:1rem; border-radius:var(--radius-sm); border:none; background:linear-gradient(135deg,#9b6dd4,#e8a020); color:#fff; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:.02em; display:flex; align-items:center; justify-content:center; gap:8px; }
+.gen-visual-btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+.gen-visual-btn:disabled { background:#2a2535; color:#5a4d6a; cursor:not-allowed; transform:none; }
+.gen-visual-btn .spinner { border-top-color:#fff; }
+
+.kling-ver { font-size:10px; padding:2px 8px; border-radius:999px; background:var(--kling-dim); color:var(--kling); border:1px solid rgba(232,160,32,0.3); font-weight:600; letter-spacing:.05em; }
+
+
+/* ── EMAIL GENERATOR ── */
+.badge-email  { background:var(--email-dim); color:var(--email); border:1px solid var(--email); }
+.badge-intro  { background:rgba(91,184,154,0.1); color:#5bb89a; border:1px solid #5bb89a; }
+.badge-followup { background:rgba(124,131,212,0.1); color:#7c83d4; border:1px solid #7c83d4; }
+.badge-reengage { background:rgba(212,96,122,0.1); color:#d4607a; border:1px solid #d4607a; }
+
+.scenario-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.scenario-btn { padding:.85rem .75rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); cursor:pointer; text-align:left; transition:all .2s; }
+.scenario-btn:hover { border-color:var(--border2); }
+.scenario-btn.active[data-sc="intro"]     { border-color:#5bb89a; background:rgba(91,184,154,0.08); }
+.scenario-btn.active[data-sc="followup"]  { border-color:#7c83d4; background:rgba(124,131,212,0.08); }
+.scenario-btn.active[data-sc="reengage"]  { border-color:#d4607a; background:rgba(212,96,122,0.08); }
+.scenario-icon { font-size:20px; margin-bottom:6px; }
+.scenario-name { font-size:13px; font-weight:600; margin-bottom:3px; }
+.scenario-desc { font-size:11px; color:var(--muted); line-height:1.45; }
+
+.eprod-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.eprod-btn { padding:.85rem .9rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); cursor:pointer; text-align:left; transition:all .2s; }
+.eprod-btn:hover { border-color:var(--border2); }
+.eprod-btn.active[data-eprod="node"]   { border-color:var(--node);   background:var(--node-dim);   }
+.eprod-btn.active[data-eprod="vector"] { border-color:var(--vector); background:var(--vector-dim); }
+.eprod-btn.active[data-eprod="both"]   { border-color:var(--accent-gold); background:var(--accent-gold-dim); }
+.eprod-btn.active[data-eprod="fbrokerage"] { border-color:#5bb89a; background:rgba(91,184,154,0.08); }
+.eprod-btn.active[data-eprod="fforwarding"]{ border-color:#4ea8c9; background:rgba(78,168,201,0.08); }
+.eprod-btn.active[data-eprod="barge"]      { border-color:#7c83d4; background:rgba(124,131,212,0.08); }
+
+/* Sender toggle */
+.sender-toggle { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+.sender-btn { padding:.85rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); cursor:pointer; display:flex; align-items:center; gap:10px; transition:all .2s; text-align:left; }
+.sender-btn:hover { border-color:var(--border2); }
+.sender-btn.active[data-sender="ibt"]    { border-color:var(--accent-gold); background:var(--accent-gold-dim); }
+.sender-btn.active[data-sender="nouvos"] { border-color:var(--node); background:var(--node-dim); }
+.sender-logo { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; font-family:'DM Serif Display',serif; }
+.sender-logo.ibt    { background:var(--accent-gold-dim); color:var(--accent-gold); border:1px solid rgba(201,168,76,0.3); }
+.sender-logo.nouvos { background:var(--node-dim);        color:var(--node);        border:1px solid rgba(91,184,154,0.3); }
+.sender-name { font-size:14px; font-weight:500; }
+.sender-sub  { font-size:11px; color:var(--muted); margin-top:2px; }
+.eprod-tag  { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+.eprod-tag.node   { color:var(--node); }
+.eprod-tag.vector { color:var(--vector); }
+.eprod-tag.both   { color:var(--accent-gold); }
+.eprod-name { font-size:13px; font-weight:500; margin-bottom:3px; }
+.eprod-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.form-row.single { grid-template-columns:1fr; }
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-label { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.form-input { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.65rem .9rem; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--text); transition:border-color .2s; }
+.form-input:focus { outline:none; border-color:var(--accent-gold); }
+.form-input::placeholder { color:var(--muted); }
+.form-textarea { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.75rem .9rem; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--text); resize:vertical; min-height:80px; line-height:1.6; transition:border-color .2s; }
+.form-textarea:focus { outline:none; border-color:var(--accent-gold); }
+.form-textarea::placeholder { color:var(--muted); }
+.followup-fields { display:none; }
+.followup-fields.show { display:block; }
+
+.gen-email-btn { width:100%; padding:1rem; border-radius:var(--radius-sm); border:none; background:linear-gradient(135deg,#c9a84c,#d48c3a); color:#0d0f12; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; letter-spacing:.02em; display:flex; align-items:center; justify-content:center; gap:8px; }
+.gen-email-btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+.gen-email-btn:disabled { background:#3a2e18; color:#6a5020; cursor:not-allowed; transform:none; }
+
+.email-output { display:none; margin-top:1.5rem; animation:fadeUp .4s ease both; }
+.email-output.visible { display:block; }
+
+.email-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1.25rem; }
+.email-card-header { padding:.75rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface2); flex-wrap:wrap; gap:8px; }
+.email-var-label { font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+.email-tone-badge { font-size:10px; padding:2px 8px; border-radius:999px; }
+.email-body { padding:1.25rem 1.5rem; }
+.email-subject-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+.email-subject-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); flex-shrink:0; padding-top:2px; }
+.email-subject-text { font-size:14px; font-weight:600; color:var(--text); flex:1; line-height:1.4; }
+.email-copy-subj { padding:3px 10px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; flex-shrink:0; transition:all .15s; }
+.email-copy-subj:hover { color:var(--accent-gold); border-color:var(--accent-gold); }
+.email-copy-subj.copied { color:var(--node); border-color:var(--node); }
+.email-text { font-size:14px; line-height:1.9; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.email-footer-bar { padding:.7rem 1.25rem; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; background:var(--surface2); }
+
+.tone-selector { display:flex; gap:8px; flex-wrap:wrap; margin-top:.75rem; }
+.tone-btn { padding:5px 14px; border-radius:999px; border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; transition:all .15s; }
+.tone-btn:hover { border-color:var(--email); color:var(--email); }
+.tone-btn.active { background:var(--email-dim); border-color:var(--email); color:var(--email); }
+
+.ibt-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--surface2); border:1px solid var(--border2); font-size:11px; color:var(--muted); margin-bottom:.85rem; }
+.ibt-dot { width:7px; height:7px; border-radius:50%; background:var(--accent-gold); }
+
+@media(max-width:560px) {
+  .scenario-grid { grid-template-columns:1fr; }
+  .eprod-grid { grid-template-columns:1fr; }
+  .form-row { grid-template-columns:1fr; }
+}
+
+
+/* ── LANGUAGE TOGGLE ── */
+.lang-toggle-wrap { display:flex; justify-content:center; align-items:center; gap:10px; margin-top:.9rem; }
+.lang-toggle-label { font-size:11px; color:var(--muted); letter-spacing:.06em; display:flex; align-items:center; gap:5px; transition:color .2s; }
+.lang-toggle-label.active { color:var(--text); font-weight:500; }
+.lang-toggle-label .flag { font-size:14px; }
+.toggle-track { width:52px; height:26px; border-radius:999px; background:var(--surface2); border:1px solid var(--border2); cursor:pointer; position:relative; transition:background .25s, border-color .25s; flex-shrink:0; }
+.toggle-track.es { background:rgba(201,168,76,0.18); border-color:var(--accent-gold); }
+.toggle-thumb { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:transform .25s cubic-bezier(.4,0,.2,1), background .25s; }
+.toggle-track.es .toggle-thumb { transform:translateX(26px); background:var(--accent-gold); }
+.lang-badge { font-size:10px; font-weight:700; letter-spacing:.08em; padding:2px 7px; border-radius:999px; margin-left:6px; transition:all .2s; }
+.lang-badge.en { background:var(--surface2); color:var(--muted); border:1px solid var(--border2); }
+.lang-badge.es { background:rgba(201,168,76,0.15); color:var(--accent-gold); border:1px solid rgba(201,168,76,0.4); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+@media(max-width:560px) {
+  .platform-grid, .product-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-mark">N</div>
+      <div class="logo-text">Nouvos <span>ONE</span></div>
+    </div>
+    <div class="header-sub">Social Media Content Agent</div>
+    <div class="lang-toggle-wrap">
+      <span class="lang-toggle-label active" id="labelEN"><span class="flag">🇺🇸</span> English</span>
+      <div class="toggle-track" id="langTrack" onclick="toggleLang()">
+        <div class="toggle-thumb" id="langThumb"></div>
+      </div>
+      <span class="lang-toggle-label" id="labelES"><span class="flag">🇻🇪</span> Español</span>
+      <span class="lang-badge en" id="langBadge">EN</span>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('generate')">Generate</button>
+    <button class="nav-tab" onclick="switchView('visual')">Visual Prompts ✦</button>
+    <button class="nav-tab" onclick="switchView('email')">Email Generator ✉</button>
+    <button class="nav-tab" onclick="switchView('history')">Saved Drafts &amp; History <span id="histCount" style="font-size:10px;margin-left:2px;opacity:.6;"></span></button>
+  </div>
+
+  <!-- API KEY PANEL -->
+  <div class="apikey-panel" id="apikeyPanel">
+    <div class="apikey-top">
+      <div class="apikey-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      </div>
+      <div>
+        <div class="apikey-title">Anthropic API Key</div>
+        <div class="apikey-sub">Required when running locally — not needed inside Claude.ai</div>
+      </div>
+    </div>
+    <div class="apikey-row">
+      <input class="apikey-input" id="apikeyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveApiKey()" />
+      <button class="apikey-save-btn" onclick="saveApiKey()">Save key</button>
+    </div>
+    <div class="apikey-hint">
+      Key is kept in memory only — never stored to disk or sent anywhere except Anthropic's API.<br>
+      Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a>
+    </div>
+    <div id="apikeyStatus"></div>
+  </div>
+
+  <!-- GENERATE VIEW -->
+  <div class="view active" id="view-generate">
+
+    <div class="panel">
+      <div class="panel-label">Step 1 — Choose platform</div>
+      <div class="platform-grid">
+
+        <button class="platform-btn active" data-plat="fb" onclick="selectPlatform('fb')">
+          <div class="plat-icon fb">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#4a90d9"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </div>
+          <div><div class="platform-name">Facebook</div><div class="platform-desc">Community · stories · shares</div></div>
+        </button>
+
+        <button class="platform-btn" data-plat="ig" onclick="selectPlatform('ig')">
+          <div class="plat-icon ig">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#d4607a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </div>
+          <div><div class="platform-name">Instagram</div><div class="platform-desc">Visual-first · aspirational · hashtags</div></div>
+        </button>
+
+        <button class="platform-btn" data-plat="li" onclick="selectPlatform('li')">
+          <div class="plat-icon li">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#4ea8c9"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </div>
+          <div><div class="platform-name">LinkedIn</div><div class="platform-desc">Thought leadership · B2B · professionals</div></div>
+        </button>
+
+        <button class="platform-btn" data-plat="x" onclick="selectPlatform('x')">
+          <div class="plat-icon x">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#a0aab8"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </div>
+          <div><div class="platform-name">X (Twitter)</div><div class="platform-desc">Punchy · threads · real-time voice</div></div>
+        </button>
+
+      </div>
+      <div id="xFormatRow" class="x-format-row" style="display:none;">
+        <button class="format-btn active" data-fmt="both" onclick="selectFmt('both')">Both formats</button>
+        <button class="format-btn" data-fmt="standalone" onclick="selectFmt('standalone')">Standalone tweet</button>
+        <button class="format-btn" data-fmt="thread" onclick="selectFmt('thread')">Thread only</button>
+      </div>
+      <div id="xNote" class="x-note" style="display:none;">Each generation produces a standalone tweet (&lt;280 chars) and a 3–5 tweet thread.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">Step 2 — Choose product</div>
+      <div class="product-grid">
+        <button class="product-btn" data-prod="fbrokerage" onclick="selectProduct('fbrokerage')">
+          <div class="product-tag node">IBT</div>
+          <div class="product-name">Freight Brokerage</div>
+          <div class="product-desc">Carrier connections, load matching &amp; rate negotiation</div>
+        </button>
+        <button class="product-btn" data-prod="fforwarding" onclick="selectProduct('fforwarding')">
+          <div class="product-tag" style="color:var(--li);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">IBT</div>
+          <div class="product-name">Freight Forwarding</div>
+          <div class="product-desc">International shipping, customs &amp; door-to-door logistics</div>
+        </button>
+        <button class="product-btn" data-prod="barge" onclick="selectProduct('barge')">
+          <div class="product-tag vector">IBT</div>
+          <div class="product-name">Barge Services</div>
+          <div class="product-desc">Inland waterway bulk &amp; oversized cargo transport</div>
+        </button>
+        <button class="product-btn active" data-prod="node" onclick="selectProduct('node')">
+          <div class="product-tag node">NODE</div>
+          <div class="product-name">Nouvos NODE</div>
+          <div class="product-desc">Marketing, design, websites &amp; e-commerce</div>
+        </button>
+        <button class="product-btn" data-prod="vector" onclick="selectProduct('vector')">
+          <div class="product-tag vector">VECTOR</div>
+          <div class="product-name">Nouvos VECTOR</div>
+          <div class="product-desc">TMS — dashboards, automation &amp; bidding</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">Step 3 — Describe your post topic</div>
+      <textarea class="topic-area" id="topicInput" placeholder="e.g. A small restaurant owner who finally got their first professional website..."></textarea>
+      <div class="hint-row" id="hintRow"></div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generatePost()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnText">Generate Post</span>
+    </button>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="output-area" id="outputArea">
+      <div class="output-header">
+        <div class="output-title">
+          Generated post
+          <span class="output-badge" id="platBadge"></span>
+          <span class="output-badge" id="prodBadge"></span>
+        </div>
+        <div class="output-actions">
+          <button class="action-btn" onclick="saveAllDrafts()">Save all as drafts</button>
+          <button class="action-btn" onclick="copyAll()">Copy all</button>
+        </div>
+      </div>
+      <div id="postsContainer"></div>
+    </div>
+  </div>
+
+
+  <!-- ══ VISUAL PROMPTS VIEW ══ -->
+  <div class="view" id="view-visual">
+
+    <!-- Media Type -->
+    <div class="panel">
+      <div class="panel-label">Step 1 — Choose media type</div>
+      <div class="media-grid">
+        <button class="media-btn active" data-media="image" onclick="selectMedia('image')">
+          <div class="media-icon image">🖼️</div>
+          <div>
+            <div class="media-title">Image Prompt</div>
+            <div class="media-desc">Still visuals for ads, posts, thumbnails &amp; banners</div>
+          </div>
+        </button>
+        <button class="media-btn" data-media="video" onclick="selectMedia('video')">
+          <div class="media-icon video">🎬</div>
+          <div>
+            <div class="media-title">Video Prompt</div>
+            <div class="media-desc">Motion content for reels, ads, demos &amp; brand films</div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Product -->
+    <div class="panel">
+      <div class="panel-label">Step 2 — Choose product</div>
+      <div class="product-grid">
+        <button class="product-btn" data-prod="vfbrokerage" onclick="selectVProduct('vfbrokerage')">
+          <div class="product-tag node">IBT</div>
+          <div class="product-name">Freight Brokerage</div>
+          <div class="product-desc">Carrier networks, routes &amp; freight movement visuals</div>
+        </button>
+        <button class="product-btn" data-prod="vfforwarding" onclick="selectVProduct('vfforwarding')">
+          <div class="product-tag" style="color:var(--li);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">IBT</div>
+          <div class="product-name">Freight Forwarding</div>
+          <div class="product-desc">International shipping, ports &amp; global trade visuals</div>
+        </button>
+        <button class="product-btn" data-prod="vbarge" onclick="selectVProduct('vbarge')">
+          <div class="product-tag vector">IBT</div>
+          <div class="product-name">Barge Services</div>
+          <div class="product-desc">Waterway, river &amp; bulk cargo visual storytelling</div>
+        </button>
+        <button class="product-btn active" data-prod="vnode" onclick="selectVProduct('vnode')">
+          <div class="product-tag node">NODE</div>
+          <div class="product-name">Nouvos NODE</div>
+          <div class="product-desc">Warm, personal, transformation-driven visuals</div>
+        </button>
+        <button class="product-btn" data-prod="vvector" onclick="selectVProduct('vvector')">
+          <div class="product-tag vector">VECTOR</div>
+          <div class="product-name">Nouvos VECTOR</div>
+          <div class="product-desc">Professional, data-forward, supply chain visuals</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Kling Settings -->
+    <div class="panel">
+      <div class="panel-label">Step 3 — Kling settings <span class="kling-ver">Kling 3.0+</span></div>
+      <div class="options-grid">
+
+        <div class="option-group">
+          <div class="option-label">Aspect ratio</div>
+          <select class="option-select" id="vAspect">
+            <option value="16:9">16:9 — Landscape (YouTube, LinkedIn, Facebook)</option>
+            <option value="9:16" selected>9:16 — Vertical (Reels, TikTok, Stories)</option>
+            <option value="1:1">1:1 — Square (Instagram feed, Facebook)</option>
+            <option value="4:5">4:5 — Portrait (Instagram, Facebook feed)</option>
+            <option value="21:9">21:9 — Cinematic widescreen</option>
+          </select>
+        </div>
+
+        <div class="option-group">
+          <div class="option-label">Visual style</div>
+          <select class="option-select" id="vStyle">
+            <option value="cinematic">Cinematic — Film-quality, dramatic lighting</option>
+            <option value="lifestyle">Lifestyle — Real, warm, authentic feel</option>
+            <option value="corporate">Corporate — Clean, polished, B2B professional</option>
+            <option value="tech-dark">Tech Dark — Dark mode UI, glowing data</option>
+            <option value="minimal">Minimalist — White space, elegant, modern</option>
+            <option value="dynamic">Dynamic — High energy, motion blur, bold</option>
+          </select>
+        </div>
+
+        <div class="option-group">
+          <div class="option-label">Mood / lighting</div>
+          <select class="option-select" id="vMood">
+            <option value="warm-golden">Warm golden hour — inviting, optimistic</option>
+            <option value="cool-blue">Cool blue tone — professional, trustworthy</option>
+            <option value="high-contrast">High contrast — bold, impactful</option>
+            <option value="soft-diffused">Soft diffused — gentle, approachable</option>
+            <option value="neon-night">Neon night — futuristic, tech-forward</option>
+            <option value="studio-clean">Studio clean — crisp, product-focused</option>
+          </select>
+        </div>
+
+        <div class="option-group video-only" id="vDurGroup">
+          <div class="option-label">Video duration</div>
+          <select class="option-select" id="vDuration">
+            <option value="5s">5 seconds — Quick hook / social cut</option>
+            <option value="10s">10 seconds — Short story / ad format</option>
+            <option value="15s">15 seconds — Extended story / demo</option>
+          </select>
+        </div>
+
+        <div class="option-group video-only" id="vCamGroup">
+          <div class="option-label">Camera movement</div>
+          <select class="option-select" id="vCamera">
+            <option value="slow-push-in">Slow push in — builds tension/interest</option>
+            <option value="pull-back-reveal">Pull-back reveal — dramatic unveil</option>
+            <option value="orbit-around">Orbit around subject — showcase</option>
+            <option value="tracking-shot">Tracking shot — follows action</option>
+            <option value="static-locked">Static locked — clean, controlled</option>
+            <option value="handheld">Handheld — authentic, documentary</option>
+            <option value="aerial-drone">Aerial drone — scale, grandeur</option>
+          </select>
+        </div>
+
+        <div class="option-group video-only" id="vPaceGroup">
+          <div class="option-label">Edit pace</div>
+          <select class="option-select" id="vPace">
+            <option value="slow-cinematic">Slow &amp; cinematic — emotional, premium</option>
+            <option value="medium">Medium — balanced storytelling</option>
+            <option value="fast-cut">Fast cut — energetic, social-native</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Scene concept -->
+    <div class="panel">
+      <div class="panel-label">Step 4 — Describe the scene or concept</div>
+      <textarea class="topic-area" id="vTopicInput" placeholder="e.g. A small business owner seeing their new website go live for the first time, feeling pride and excitement..."></textarea>
+      <div class="hint-row" id="vHintRow"></div>
+    </div>
+
+    <button class="gen-visual-btn" id="genVisualBtn" onclick="generateVisual()">
+      <div class="spinner" id="vSpinner"></div>
+      <span id="vBtnText">✦ Generate Kling Prompt</span>
+    </button>
+
+    <div class="error-box" id="vErrorBox"></div>
+
+    <div class="kling-output" id="klingOutput">
+      <div class="output-header">
+        <div class="output-title">
+          Kling prompt ready
+          <span class="output-badge" id="vMediaBadge"></span>
+          <span class="output-badge" id="vProdBadge"></span>
+          <span class="kling-ver">Kling 3.0+</span>
+        </div>
+        <div class="output-actions">
+          <button class="action-btn" onclick="saveVisualDraft()">Save as draft</button>
+          <button class="action-btn" onclick="copyKlingAll()">Copy all</button>
+        </div>
+      </div>
+      <div id="klingContainer"></div>
+    </div>
+
+  </div>
+
+
+  <!-- ══ EMAIL GENERATOR VIEW ══ -->
+  <div class="view" id="view-email">
+
+    <!-- Scenario -->
+    <div class="panel">
+      <div class="panel-label">Step 1 — Choose email scenario</div>
+      <div class="scenario-grid">
+        <button class="scenario-btn active" data-sc="intro" onclick="selectScenario('intro')">
+          <div class="scenario-icon">✉️</div>
+          <div class="scenario-name">Intro Email</div>
+          <div class="scenario-desc">First contact — introduce IBT &amp; Nouvos to a new prospect</div>
+        </button>
+        <button class="scenario-btn" data-sc="followup" onclick="selectScenario('followup')">
+          <div class="scenario-icon">↩️</div>
+          <div class="scenario-name">Follow-Up</div>
+          <div class="scenario-desc">After a meeting, call, or prior email — keep momentum</div>
+        </button>
+        <button class="scenario-btn" data-sc="reengage" onclick="selectScenario('reengage')">
+          <div class="scenario-icon">🔁</div>
+          <div class="scenario-name">Re-Engagement</div>
+          <div class="scenario-desc">Reconnect with a cold lead or dormant contact</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Product -->
+    <div class="panel">
+      <div class="panel-label">Step 2 — Product to promote</div>
+      <div class="eprod-grid">
+        <button class="eprod-btn" data-eprod="fbrokerage" onclick="selectEProd('fbrokerage')">
+          <div class="eprod-tag node">IBT</div>
+          <div class="eprod-name">Freight Brokerage</div>
+          <div class="eprod-desc">Carrier connections, load matching &amp; rate negotiation</div>
+        </button>
+        <button class="eprod-btn" data-eprod="fforwarding" onclick="selectEProd('fforwarding')">
+          <div class="eprod-tag" style="color:var(--li);">IBT</div>
+          <div class="eprod-name">Freight Forwarding</div>
+          <div class="eprod-desc">International shipping, customs &amp; door-to-door logistics</div>
+        </button>
+        <button class="eprod-btn" data-eprod="barge" onclick="selectEProd('barge')">
+          <div class="eprod-tag vector">IBT</div>
+          <div class="eprod-name">Barge Services</div>
+          <div class="eprod-desc">Inland waterway bulk &amp; oversized cargo transport</div>
+        </button>
+        <button class="eprod-btn active" data-eprod="node" onclick="selectEProd('node')">
+          <div class="eprod-tag node">NODE</div>
+          <div class="eprod-name">Nouvos NODE</div>
+          <div class="eprod-desc">Marketing, design, websites &amp; e-commerce</div>
+        </button>
+        <button class="eprod-btn" data-eprod="vector" onclick="selectEProd('vector')">
+          <div class="eprod-tag vector">VECTOR</div>
+          <div class="eprod-name">Nouvos VECTOR</div>
+          <div class="eprod-desc">TMS — dashboards, automation &amp; bidding</div>
+        </button>
+        <button class="eprod-btn" data-eprod="both" onclick="selectEProd('both')">
+          <div class="eprod-tag both">SUITE</div>
+          <div class="eprod-name">Full Nouvos Suite</div>
+          <div class="eprod-desc">NODE + VECTOR ecosystem together</div>
+        </button>
+      </div>
+
+      <!-- Tone -->
+      <div style="margin-top:1rem;">
+        <div class="panel-label" style="margin-bottom:.5rem;">Email tone</div>
+        <div class="tone-selector">
+          <button class="tone-btn active" data-tone="professional" onclick="selectTone('professional')">Professional</button>
+          <button class="tone-btn" data-tone="friendly" onclick="selectTone('friendly')">Friendly &amp; warm</button>
+          <button class="tone-btn" data-tone="direct" onclick="selectTone('direct')">Direct &amp; concise</button>
+          <button class="tone-btn" data-tone="consultative" onclick="selectTone('consultative')">Consultative</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipient details -->
+    <div class="panel">
+      <div class="panel-label">Step 3 — Recipient &amp; company details</div>
+
+      <div class="panel-label" style="margin-bottom:.75rem;">Sending as</div>
+      <div class="sender-toggle">
+        <button class="sender-btn active" data-sender="ibt" onclick="selectSender('ibt')">
+          <div class="sender-logo ibt">IBT</div>
+          <div>
+            <div class="sender-name">IBT Logistics</div>
+            <div class="sender-sub">Freight Broker &amp; Freight Forwarder</div>
+          </div>
+        </button>
+        <button class="sender-btn" data-sender="nouvos" onclick="selectSender('nouvos')">
+          <div class="sender-logo nouvos">N</div>
+          <div>
+            <div class="sender-name">Nouvos ONE</div>
+            <div class="sender-sub">One Network Ecosystem</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Recipient first name</label>
+          <input class="form-input" id="eRecipName" type="text" placeholder="e.g. Sarah" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient title / role</label>
+          <input class="form-input" id="eRecipTitle" type="text" placeholder="e.g. VP of Logistics" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Their company name</label>
+          <input class="form-input" id="eCompany" type="text" placeholder="e.g. Apex Supply Chain Co." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Their industry / business type</label>
+          <input class="form-input" id="eIndustry" type="text" placeholder="e.g. 3PL, Freight Broker, Retailer…" />
+        </div>
+      </div>
+
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Key pain point or context about this company <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional but makes emails far better)</span></label>
+          <textarea class="form-textarea" id="eContext" placeholder="e.g. They've been using a legacy TMS and mentioned during a trade show they struggle with manual bid entry and lack of real-time visibility across their lanes..."></textarea>
+        </div>
+      </div>
+
+      <!-- Follow-up / Re-engage extra fields -->
+      <div class="followup-fields" id="eFollowupFields">
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Previous interaction summary</label>
+            <textarea class="form-textarea" id="ePrevInteraction" placeholder="e.g. Had a 20-min intro call on March 5th — they showed interest in VECTOR but wanted to see pricing first. They asked us to follow up in 2 weeks..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Last contact date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(approx.)</span></label>
+            <input class="form-input" id="eLastContact" type="text" placeholder="e.g. 3 weeks ago, March 5th…" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Desired next step</label>
+            <input class="form-input" id="eNextStep" type="text" placeholder="e.g. Schedule a demo, hop on a call…" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="gen-email-btn" id="genEmailBtn" onclick="generateEmail()">
+      <div class="spinner" id="eSpinner"></div>
+      <span id="eBtnText">✉ Generate Email</span>
+    </button>
+
+    <div class="error-box" id="eErrorBox"></div>
+
+    <div class="email-output" id="emailOutput">
+      <div class="output-header">
+        <div class="output-title">
+          Email ready
+          <span class="output-badge" id="eScBadge"></span>
+          <span class="output-badge" id="eProdBadge2"></span>
+        </div>
+        <div class="output-actions">
+          <button class="action-btn" onclick="saveEmailDrafts()">Save all as drafts</button>
+          <button class="action-btn" onclick="copyAllEmails()">Copy all</button>
+        </div>
+      </div>
+      <div id="emailContainer"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ HISTORY ══ -->
+  <div class="view" id="view-history">
+    <div class="history-toolbar">
+      <div class="history-filters">
+        <button class="filter-chip active" data-filter="all"    onclick="setFilter('all')">All</button>
+        <button class="filter-chip"        data-filter="draft"  onclick="setFilter('draft')">⭐ Drafts</button>
+        <button class="filter-chip"        data-filter="fb"     onclick="setFilter('fb')">Facebook</button>
+        <button class="filter-chip"        data-filter="ig"     onclick="setFilter('ig')">Instagram</button>
+        <button class="filter-chip"        data-filter="li"     onclick="setFilter('li')">LinkedIn</button>
+        <button class="filter-chip"        data-filter="x"      onclick="setFilter('x')">X</button>
+        <button class="filter-chip"        data-filter="node"   onclick="setFilter('node')">NODE</button>
+        <button class="filter-chip"        data-filter="vector" onclick="setFilter('vector')">VECTOR</button>
+        <button class="filter-chip"        data-filter="visual" onclick="setFilter('visual')">🎬 Visual</button>
+        <button class="filter-chip"        data-filter="email"  onclick="setFilter('email')">✉ Email</button>
+      </div>
+      <button class="clear-all-btn" onclick="clearAll()">Clear history</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+</div>
+
+<script>
+var platform = 'fb', product = 'node', xFormat = 'both';
+var currentPosts = [], histFilter = 'all';
+var appLang = 'en';
+
+var PLAT_LABELS = { fb:'Facebook', ig:'Instagram', li:'LinkedIn', x:'X (Twitter)', kling:'Kling 3.0', email:'Email' };
+var PROD_LABELS = { node:'Nouvos NODE', vector:'Nouvos VECTOR', fbrokerage:'Freight Brokerage', fforwarding:'Freight Forwarding', barge:'Barge Services' };
+
+var hints = {
+  'fb-node':   ['First website for a local bakery',"Entrepreneur who can\u2019t afford an agency",'E-commerce launch for a boutique','Brand refresh for a freelancer','Reaching new customers online'],
+  'ig-node':   ['Transformation: no website to full brand','Behind the scenes of a shop launch','Before & after brand redesign','Starting an online store from scratch','Growing a side hustle into a business'],
+  'li-node':   ['Solopreneur who got their first real brand','Small team that finally looks enterprise','Startup landing page that changed everything','Marketing on a bootstrap budget','Professional design without an agency'],
+  'x-node':    ['Marketing team used to cost $5k/mo','Getting a website without the agency price','E-commerce built in days not months','A brand identity from zero to launch','Going from handshake deals to online sales'],
+  'fb-vector': ['Reducing manual bid management time','Real-time freight dashboard visibility','Automating repetitive 3PL workflows','Cost savings from smarter analytics','Effortless lane bidding for brokers'],
+  'ig-vector': ['TMS dashboard highlight reel','Freight automation in 2025','Before & after: manual vs automated bidding','Supply chain efficiency data visual','Fleet ops command center concept'],
+  'li-vector': ['How automation cuts freight overhead','Winning more loads with smarter bidding','Why your TMS is costing you capacity','Dashboard visibility that changes decisions','The 3PL efficiency gap and how to close it'],
+  'x-vector':  ['Manual bidding costing hours every week','TMS built for modern freight teams','Real-time dashboard that changes ops','Automated bidding vs old school spreadsheets','Freight tech that actually understands logistics'],
+
+  'fb-fbrokerage': ['Shipper who kept getting burned by unreliable carriers','Finding capacity during peak season','Rate negotiation that saved a shipment budget','Real-time tracking changing how ops teams work','The difference a trusted broker makes'],
+  'ig-fbrokerage': ['The right carrier at the right rate at the right time','Capacity crunch: how top shippers stay ahead','Load matched. Rate locked. Freight moving.','Behind the scenes of a brokerage that delivers','Peak season solved with the right broker'],
+  'li-fbrokerage': ['Why your carrier network is costing you more than you think','The hidden cost of inconsistent freight capacity','How a trusted broker relationship changes your bottom line','Rate volatility and how strategic brokers absorb it','What separates a vendor broker from a partner broker'],
+  'x-fbrokerage':  ['Your carrier network is either an asset or a liability','Bad broker: shipment late. Good broker: you never worried.','Capacity is not just found — it is built over time','Rate shopping vs rate strategizing — know the difference','The broker you choose determines the freight you move'],
+
+  'fb-fforwarding': ['Importer who got stuck in customs for two weeks','Documentation error that cost a shipment','Finding a forwarder who actually communicates','Door-to-door international shipping done right','Making global trade feel local'],
+  'ig-fforwarding': ['Your freight. Any country. Door to door.','Customs cleared. Cargo delivered. No surprises.','The forwarder that speaks every port language','International shipping without the international headache','From origin to destination — we handle the world'],
+  'li-fforwarding': ['The hidden risk in international freight documentation','Why most customs delays are forwarder failures','What end-to-end freight forwarding actually means','Global supply chain resilience starts with the right forwarder','How IBT turns international shipping complexity into a competitive advantage'],
+  'x-fforwarding':  ['Most customs delays are preventable. Most forwarders prevent nothing.','Global freight is complicated. Your forwarder should not be.','Documentation errors cost more than the shipment sometimes','The best forwarders are invisible — you just get your goods','End-to-end means door to door. Not port to port.'],
+
+  'fb-barge': ['Manufacturer who switched bulk freight to barge and cut costs','Why barge is the overlooked mode for heavy cargo','Moving oversized equipment on inland waterways','Agricultural shipper who found the right lane','Green freight that actually saves money too'],
+  'ig-barge': ['The waterway is the highway for heavy freight','Bulk. Oversized. Barge. IBT moves it all.','Inland waterways: the most underrated freight lane','When the load is too big for truck — barge wins','River to destination: the IBT barge advantage'],
+  'li-barge': ['Why forward-thinking supply chains are returning to barge','The cost-per-ton math that makes barge impossible to ignore','Inland waterway capacity is growing — are you using it?','Oversized freight and why barge outperforms truck every time','Sustainability and savings: the barge business case'],
+  'x-barge':  ['Most bulk shippers have never priced barge. They should.','Truck rates up. Rail capacity tight. The river is open.','Cost per ton mile: barge wins. Every time.','Oversized load? The answer might be on the water.','The most underutilized freight mode in North America is also the cheapest.']
+};
+
+var placeholders = {
+  node:        'e.g. A small restaurant owner who finally got their first professional website and saw new customers come in...',
+  vector:      'e.g. A 3PL company spending hours every week manually entering bids across different systems...',
+  fbrokerage:  'e.g. A shipper who kept losing capacity during peak season until they partnered with IBT Logistics...',
+  fforwarding: 'e.g. An importer who missed two shipment windows due to customs documentation errors before switching to IBT...',
+  barge:       'e.g. A bulk commodity shipper who discovered barge services and cut their freight cost by 30%...'
+};
+
+function selectPlatform(p) {
+  platform = p;
+  document.querySelectorAll('.platform-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.platform-btn[data-plat="' + p + '"]').classList.add('active');
+  document.getElementById('xFormatRow').style.display = p === 'x' ? 'flex' : 'none';
+  document.getElementById('xNote').style.display      = p === 'x' ? 'block' : 'none';
+  updateHints();
+}
+function selectProduct(p) {
+  product = p;
+  document.querySelectorAll('#view-generate .product-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('#view-generate .product-btn[data-prod="' + p + '"]').classList.add('active');
+  document.getElementById('topicInput').placeholder = placeholders[p] || placeholders['node'];
+  updateHints();
+}
+function selectFmt(f) {
+  xFormat = f;
+  document.querySelectorAll('.format-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.format-btn[data-fmt="' + f + '"]').classList.add('active');
+}
+function updateHints() {
+  var key = platform + '-' + product;
+  var row = document.getElementById('hintRow');
+  row.innerHTML = (hints[key] || []).map(function(h){
+    return '<button class="hint-chip" onclick="useHint(this)">' + h + '</button>';
+  }).join('');
+}
+function useHint(el) { document.getElementById('topicInput').value = el.textContent; }
+
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('view-' + v).classList.add('active');
+  var idx = v === 'generate' ? 0 : v === 'visual' ? 1 : v === 'email' ? 2 : 3;
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  if (v === 'history') renderHistory();
+}
+
+function buildSystemPrompt() {
+  var key = platform + '-' + product;
+  var delim = 'Return EXACTLY 2 post variations separated by: ---NEXT---\nLabel each "Variation 1:" and "Variation 2:" on its own line.';
+
+  var prompts = {
+    'fb-node': 'You are the Facebook content agent for Nouvos ONE, promoting Nouvos NODE — marketing, design, website creation, and e-commerce for small businesses.\nAudience: Small business owners, local entrepreneurs, side-hustle builders on Facebook.\nTone: Conversational, warm, community feel. Like a trusted friend sharing something that genuinely helped them.\nRules: 1) Open with a relatable question or bold statement. 2) 2-3 sentence story/scenario the audience sees themselves in. 3) Introduce NODE with at least one specific capability. 4) Invite engagement — ask a question or invite tagging someone. 5) Friendly CTA. 6) 3-5 hashtags including #NouvoNODE and #NouvoONE.\nLength: 100-200 words. Short paragraphs. No bullet lists in body.\n' + delim,
+
+    'fb-vector': 'You are the Facebook content agent for Nouvos ONE, promoting Nouvos VECTOR — a professional TMS for supply chain companies with dashboards, analytics, automation, and streamlined bidding.\nAudience: Freight brokers, logistics managers, fleet operators, 3PLs on Facebook.\nTone: Professional but approachable. Credible industry-insider voice. Speak like someone who has been on the dock and in the office.\nRules: 1) Lead with a real operational pain point. 2) Explain the compounding cost or risk. 3) Present VECTOR as the consolidated solution with 1-2 concrete features. 4) End with engagement prompt or CTA. 5) 3-5 hashtags including #NouvoVECTOR and #NouvoONE.\nLength: 100-200 words. Short paragraphs. No bullet lists.\n' + delim,
+
+    'ig-node': 'You are the Instagram content agent for Nouvos ONE, promoting Nouvos NODE — marketing, web design, e-commerce, and business exposure.\nAudience: Aspiring entrepreneurs, small business owners, creatives building a brand. Visually driven, scroll fast, respond to transformation stories.\nTone: Punchy, aspirational, empowering. Short sentences. Big energy.\nRules: 1) First line = single bold statement that stands alone before "...more" — make it unforgettable. 2) 3-5 short lines expanding the transformation. 3) Mention one specific capability. 4) Punchy CTA. 5) New line with 10-12 hashtags including #NouvoNODE and #NouvoONE. 6) Final line in brackets: [Visual Direction: ...].\nBody: 80-150 words. No bullet points.\n' + delim,
+
+    'ig-vector': 'You are the Instagram content agent for Nouvos ONE, promoting Nouvos VECTOR — a TMS for transportation and supply chain with dashboards, analytics, automation, and bidding.\nAudience: Supply chain managers, logistics operators, freight brokers, fleet professionals on Instagram.\nTone: Sharp, results-oriented, visually confident. Stop-the-scroll credibility.\nRules: 1) First line = single bold operational statement or data insight. 2) 3-4 short lines describing the operational shift VECTOR enables. 3) Reference 1-2 capabilities by name. 4) Business-focused CTA. 5) New line with 10-12 hashtags including #NouvoVECTOR and #NouvoONE. 6) Final line in brackets: [Visual Direction: ...].\nBody: 80-150 words. Tight sentences. No fluff.\n' + delim,
+
+    'li-node': 'You are the LinkedIn content agent for Nouvos ONE, promoting Nouvos NODE — online services including marketing, design, website creation, and e-commerce.\nAudience: Small business owners, solopreneurs, freelancers, first-time entrepreneurs who feel priced out of professional marketing.\nTone: Personal, warm, empowering. Write as a mentor who has been in their shoes. Use "you" and "we" freely. Speak to the emotional reality of running a small business.\nRules: 1) One-line hook surfacing a real pain point — e.g. "You\'ve always wanted a marketing team — but affording one felt impossible. Until now." 2) 2-3 lines building a story around that pain. 3) Introduce NODE as the turning point. 4) Conversational CTA. 5) 4-6 hashtags including #NouvoNODE #NouvoONE #SmallBusiness.\nLength: 150-250 words. Flowing paragraphs only — no bullet points. Never corporate speak.\n' + delim,
+
+    'li-vector': 'You are the LinkedIn content agent for Nouvos ONE, promoting Nouvos VECTOR — a purpose-built TMS delivering operational efficiencies through dashboards, real-time analysis, intelligent automation, and effortless load bidding.\nAudience: Supply chain directors, logistics managers, freight brokers, fleet operators, 3PLs, C-suite at logistics and transportation companies.\nTone: Authoritative, data-minded, strategic. Peer-level voice — direct and precise. Use industry language confidently.\nRules: 1) Open with a sharp industry insight or operational challenge framed in business-impact terms. 2) Frame the problem as cost, time, or missed capacity. 3) Position VECTOR as operational solution with 1-2 capability callouts. 4) Professional CTA. 5) 4-6 hashtags including #NouvoVECTOR #NouvoONE #SupplyChain.\nLength: 150-250 words. Paragraph format only. Thought leadership voice.\n' + delim,
+
+    'x-node': 'You are the X (Twitter) content agent for Nouvos ONE, promoting Nouvos NODE — website creation, marketing, design, and e-commerce for small businesses.\nAudience: Small business owners, indie hackers, solopreneurs, aspiring entrepreneurs on X.\nTone: Punchy, conversational, self-aware. X rewards originality. Relatability required.\n\nGenerate TWO formats:\n\nSTANDALONE TWEET (under 280 characters total): A single tweet with the emotional truth of running a small business, tied to NODE. Max 2-3 hashtags.\n\nTHREAD (3-5 tweets):\n1/ Bold hook (the pain or the surprising truth)\n2/ Expand the problem with a relatable scenario\n3/ Introduce NODE as the answer with 1-2 specifics\n4/ Before/after transformation\n5/ (optional) CTA + 2-3 hashtags including #NouvoNODE #NouvoONE\n\nKeep each tweet under 280 characters.\n\nFormat EXACTLY like this:\nVariation 1:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>\n---NEXT---\nVariation 2:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>',
+
+
+    'fb-fbrokerage': 'You are the Facebook content agent for IBT Logistics, promoting their Freight Brokerage services — connecting shippers with a reliable carrier network, competitive rate negotiation, load matching, and real-time shipment tracking.\nAudience: Shippers, supply chain managers, operations leads, and business owners who move freight and need reliable, cost-effective carrier access.\nTone: Trustworthy, knowledgeable, community feel. IBT is the partner who gets your freight there — and gets it right.\nRules: 1) Open with a relatable freight pain point (capacity, rates, reliability). 2) 2-3 sentence story the audience sees themselves in. 3) Introduce IBT Freight Brokerage as the solution with one specific capability. 4) Invite engagement or tag a logistics peer. 5) Friendly CTA. 6) 3-5 hashtags including #IBTLogistics #FreightBrokerage #Shipping.\nLength: 100-200 words. Short paragraphs. No bullet lists.\n' + delim,
+
+    'fb-fforwarding': 'You are the Facebook content agent for IBT Logistics, promoting their Freight Forwarding services — end-to-end international shipping including ocean, air, customs brokerage, documentation, and door-to-door delivery.\nAudience: Importers, exporters, global trade managers, and businesses navigating international freight complexity.\nTone: Confident, worldly, and reassuring. IBT handles the complexity so you can focus on your business.\nRules: 1) Open with a global shipping pain point (customs delays, documentation confusion, unreliable partners). 2) Short relatable scenario. 3) Introduce IBT Freight Forwarding with 1 specific capability. 4) Engagement question or CTA. 5) 3-5 hashtags including #IBTLogistics #FreightForwarding #GlobalShipping.\nLength: 100-200 words. Short paragraphs. No bullet lists.\n' + delim,
+
+    'fb-barge': 'You are the Facebook content agent for IBT Logistics, promoting their Barge Services — cost-effective inland waterway transport for bulk commodities, heavy/oversized cargo, and high-volume shipments.\nAudience: Agricultural shippers, industrial manufacturers, construction companies, and supply chain managers with bulk or oversized freight needs.\nTone: Practical, grounded, and efficient. Barge is the smarter move for the right freight.\nRules: 1) Open with a cost or capacity challenge specific to bulk freight. 2) Relatable scenario for the target audience. 3) Introduce IBT Barge Services as the solution. 4) Engagement CTA. 5) 3-5 hashtags including #IBTLogistics #BargeShipping #InlandWaterways.\nLength: 100-200 words. Short paragraphs. No bullet lists.\n' + delim,
+
+    'ig-fbrokerage': 'You are the Instagram content agent for IBT Logistics, promoting Freight Brokerage services.\nAudience: Logistics professionals, shippers, supply chain operators who follow freight accounts on Instagram.\nTone: Confident, industry-native, credible. Stop the scroll with a freight truth.\nRules: 1) First line = single bold freight statement (e.g. the right broker changes everything). 2) 3-4 short punchy lines on IBT carrier network/rates/reliability. 3) Specific capability callout. 4) Business CTA. 5) 10-12 hashtags including #IBTLogistics #FreightBrokerage #Shipping. 6) [Visual Direction: ...].\nBody: 80-150 words.\n' + delim,
+
+    'ig-fforwarding': 'You are the Instagram content agent for IBT Logistics, promoting Freight Forwarding services.\nAudience: Importers, exporters, international trade professionals on Instagram.\nTone: Worldly, precise, aspirational. Global freight made simple.\nRules: 1) First line = bold global shipping statement. 2) 3-4 short lines on IBT end-to-end capabilities. 3) Specific service callout (customs, documentation, door-to-door). 4) CTA. 5) 10-12 hashtags including #IBTLogistics #FreightForwarding #GlobalLogistics. 6) [Visual Direction: ...].\nBody: 80-150 words.\n' + delim,
+
+    'ig-barge': 'You are the Instagram content agent for IBT Logistics, promoting Barge Services.\nAudience: Bulk shippers, industrial operators, agricultural and construction logistics pros on Instagram.\nTone: Bold, efficient, built for scale. Barge is the power move for bulk freight.\nRules: 1) First line = bold statement about bulk freight efficiency or cost. 2) 3-4 short lines on barge advantages (cost, capacity, sustainability). 3) IBT specific capability. 4) CTA. 5) 10-12 hashtags including #IBTLogistics #BargeServices #BulkShipping. 6) [Visual Direction: ...].\nBody: 80-150 words.\n' + delim,
+
+    'li-fbrokerage': 'You are the LinkedIn content agent for IBT Logistics, promoting Freight Brokerage services.\nAudience: Supply chain directors, logistics managers, procurement leads, and VP-level executives at companies that ship freight.\nTone: Authoritative and peer-level. IBT speaks the language of people who live in freight every day.\nRules: 1) Open with a sharp insight about carrier capacity, rate volatility, or shipper pain. 2) Frame the cost of a bad broker relationship. 3) Position IBT as the trusted brokerage partner with 1-2 capability callouts. 4) Professional CTA. 5) 4-6 hashtags including #IBTLogistics #FreightBrokerage #SupplyChain.\nLength: 150-250 words. Paragraphs only. Thought leadership tone.\n' + delim,
+
+    'li-fforwarding': 'You are the LinkedIn content agent for IBT Logistics, promoting Freight Forwarding services.\nAudience: Global trade managers, import/export directors, operations executives at companies with international supply chains.\nTone: Expert, globally fluent, strategically minded. IBT navigates the complexity of international freight so clients do not have to.\nRules: 1) Open with a global logistics challenge (customs delays, documentation risk, unreliable forwarder). 2) Frame the operational and financial impact. 3) Position IBT Freight Forwarding with 1-2 specific capabilities. 4) Professional CTA. 5) 4-6 hashtags including #IBTLogistics #FreightForwarding #GlobalTrade.\nLength: 150-250 words. Paragraphs only.\n' + delim,
+
+    'li-barge': 'You are the LinkedIn content agent for IBT Logistics, promoting Barge Services.\nAudience: Supply chain executives, procurement directors, operations managers at industrial, agricultural, and manufacturing companies with bulk freight needs.\nTone: Strategic, cost-minded, sustainability-aware. Barge is the underutilized mode that smart supply chain leaders are rediscovering.\nRules: 1) Open with a cost or capacity insight about bulk freight or underutilized inland waterways. 2) Frame the missed opportunity. 3) Position IBT Barge Services as the strategic answer with 1-2 specifics. 4) Professional CTA. 5) 4-6 hashtags including #IBTLogistics #BargeServices #InlandWaterways.\nLength: 150-250 words. Paragraphs only.\n' + delim,
+
+    'x-fbrokerage': 'You are the X (Twitter) content agent for IBT Logistics, promoting Freight Brokerage.\nAudience: Shippers, logistics managers, supply chain professionals on X.\nTone: Direct, freight-native, credible. Speak like someone who has negotiated a rate at midnight.\n\nGenerate TWO formats:\n\nSTANDALONE TWEET (under 280 characters): Bold freight truth tied to IBT brokerage. Max 2-3 hashtags including #IBTLogistics.\n\nTHREAD (3-5 tweets):\n1/ Freight pain point or industry truth (hook)\n2/ Cost of the wrong broker or bad capacity\n3/ What IBT Freight Brokerage does differently\n4/ The result — rates, reliability, peace of mind\n5/ (optional) CTA + #IBTLogistics #FreightBrokerage\n\nFormat EXACTLY like this:\nVariation 1:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>\n---NEXT---\nVariation 2:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>',
+
+    'x-fforwarding': 'You are the X (Twitter) content agent for IBT Logistics, promoting Freight Forwarding.\nAudience: Importers, exporters, global trade managers on X.\nTone: Worldly, precise, straight-talking. Global freight is hard — IBT makes it not.\n\nGenerate TWO formats:\n\nSTANDALONE TWEET (under 280 characters): Sharp statement on international shipping pain tied to IBT forwarding. Max 2-3 hashtags including #IBTLogistics.\n\nTHREAD (3-5 tweets):\n1/ Global shipping pain point (customs, docs, unreliable partner)\n2/ What that costs a business in time and money\n3/ What IBT Freight Forwarding handles end-to-end\n4/ The result — clearance, delivery, peace of mind\n5/ (optional) CTA + #IBTLogistics #FreightForwarding\n\nFormat EXACTLY like this:\nVariation 1:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>\n---NEXT---\nVariation 2:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>',
+
+    'x-barge': 'You are the X (Twitter) content agent for IBT Logistics, promoting Barge Services.\nAudience: Bulk shippers, industrial supply chain pros, sustainability-minded logistics leaders on X.\nTone: Bold, efficient, slightly contrarian. Barge is the mode most people overlook — and they should not.\n\nGenerate TWO formats:\n\nSTANDALONE TWEET (under 280 characters): Bold statement on barge efficiency or bulk freight cost tied to IBT. Max 2-3 hashtags including #IBTLogistics.\n\nTHREAD (3-5 tweets):\n1/ Overlooked truth about bulk freight or inland waterways (hook)\n2/ The cost of ignoring barge as a mode option\n3/ What IBT Barge Services offers — capacity, cost, reliability\n4/ Who this is built for (agriculture, industrial, manufacturing)\n5/ (optional) CTA + #IBTLogistics #BargeServices\n\nFormat EXACTLY like this:\nVariation 1:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>\n---NEXT---\nVariation 2:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>',
+
+    'x-vector': 'You are the X (Twitter) content agent for Nouvos ONE, promoting Nouvos VECTOR — a professional TMS with real-time dashboards, analytics, automation, and streamlined bidding for supply chain companies.\nAudience: Supply chain professionals, freight brokers, logistics executives, and operations leaders on X.\nTone: Direct, credible, industry-fluent. Can be sharp — freight professionals appreciate honesty over polish. Industry abbreviations (3PL, TMS, LTL) are welcome.\n\nGenerate TWO formats:\n\nSTANDALONE TWEET (under 280 characters total): Lead with a sharp industry observation or cost-of-inaction statement tied to VECTOR. Max 2-3 hashtags.\n\nTHREAD (3-5 tweets):\n1/ Industry pain point or bold observation (hook)\n2/ Hidden cost of the status quo (quantify if possible)\n3/ What VECTOR does differently — 1-2 concrete capabilities\n4/ Who this is built for (3PLs, brokers, fleet ops)\n5/ (optional) CTA + 2-3 hashtags including #NouvoVECTOR #NouvoONE\n\nKeep each tweet under 280 characters.\n\nFormat EXACTLY like this:\nVariation 1:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>\n---NEXT---\nVariation 2:\n[STANDALONE]\n<the tweet>\n\n[THREAD]\n1/ <tweet>\n2/ <tweet>\n3/ <tweet>\n4/ <tweet>\n5/ <tweet>'
+  };
+
+  return (prompts[key] || '') + getLangInstruction();
+}
+
+async function generatePost() {
+  var topic = document.getElementById('topicInput').value.trim();
+  if (!topic) { document.getElementById('topicInput').focus(); return; }
+
+  var btn = document.getElementById('generateBtn');
+  var btnText = document.getElementById('btnText');
+  var errBox  = document.getElementById('errorBox');
+  var outArea = document.getElementById('outputArea');
+
+  btn.disabled = true; btn.classList.add('generating');
+  btnText.textContent = 'Generating\u2026';
+  errBox.className = 'error-box';
+  outArea.classList.remove('visible');
+
+  try {
+    var apiKey = getApiKey();
+    if (!apiKey) {
+      errBox.textContent = 'Please enter your Anthropic API key above before generating.';
+      errBox.classList.add('visible');
+      btn.disabled = false; btn.classList.remove('generating');
+      btnText.textContent = 'Generate Post';
+      document.getElementById('apikeyInput').focus();
+      return;
+    }
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1400,
+        system: buildSystemPrompt(),
+        messages: [{ role: 'user', content: 'Write a post about: ' + topic }]
+      })
+    });
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    var raw = data.content.map(function(c){ return c.text || ''; }).join('');
+    var parts = raw.split('---NEXT---').map(function(p){ return p.trim(); }).filter(Boolean);
+
+    currentPosts = parts.map(function(p) {
+      return { text: p, platform: platform, product: product, topic: topic, ts: Date.now(), id: genId(), saved: false };
+    });
+
+    renderPosts();
+    autoSaveHistory();
+  } catch(err) {
+    errBox.textContent = 'Something went wrong: ' + err.message;
+    errBox.classList.add('visible');
+  } finally {
+    btn.disabled = false; btn.classList.remove('generating');
+    btnText.textContent = 'Generate Post';
+  }
+}
+
+function renderPosts() {
+  document.getElementById('platBadge').textContent = PLAT_LABELS[platform];
+  document.getElementById('platBadge').className   = 'output-badge badge-' + platform;
+  document.getElementById('prodBadge').textContent = PROD_LABELS[product];
+  document.getElementById('prodBadge').className   = 'output-badge badge-' + product;
+
+  var container = document.getElementById('postsContainer');
+  container.innerHTML = '';
+
+  currentPosts.forEach(function(post, i) {
+    var clean = post.text.replace(/^Variation \d+:\s*/i, '').trim();
+    var hashtags = extractHashtags(clean);
+    var visual = '';
+    if (platform === 'ig') {
+      var m = clean.match(/\[Visual[^\]]*\]/i);
+      if (m) { visual = m[0]; clean = clean.replace(m[0], '').trim(); }
+    }
+
+    var card = document.createElement('div');
+    card.className = 'post-card';
+    card.dataset.id = post.id;
+
+    var hashHtml = hashtags.slice(0,6).map(function(h){ return '<span class="meta-pill">' + escHtml(h) + '</span>'; }).join('');
+    var visualHtml = visual ? '<span class="visual-note">' + escHtml(visual) + '</span>' : '';
+    var metaHtml = (hashtags.length || visual) ? '<div class="post-meta">' + hashHtml + visualHtml + '</div>' : '';
+
+    card.innerHTML =
+      '<div class="post-card-header">' +
+        '<div class="post-card-label">Variation ' + (i+1) + '</div>' +
+        '<div class="card-btns">' +
+          '<button class="save-btn" data-id="' + post.id + '" onclick="toggleSave(\'' + post.id + '\',this)">Save draft</button>' +
+          '<button class="copy-btn" onclick="doCopy(this,\'' + escAttr(clean) + '\')">Copy</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="post-body">' + escHtml(clean) + '</div>' +
+      metaHtml;
+
+    container.appendChild(card);
+  });
+
+  document.getElementById('outputArea').classList.add('visible');
+  document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── STORAGE ── */
+function genId() { return 'p' + Date.now() + Math.random().toString(36).slice(2,5); }
+
+async function loadHistory() {
+  try { var r = await window.storage.get('nouvos-history'); return r ? JSON.parse(r.value) : []; }
+  catch(e) { return []; }
+}
+async function saveHistoryData(items) {
+  try { await window.storage.set('nouvos-history', JSON.stringify(items)); } catch(e) {}
+}
+async function autoSaveHistory() {
+  var history = await loadHistory();
+  currentPosts.forEach(function(p) {
+    if (!history.find(function(h){ return h.id === p.id; })) history.unshift(p);
+  });
+  await saveHistoryData(history.slice(0, 100));
+  updateHistCount();
+}
+async function updateHistCount() {
+  var h = await loadHistory();
+  document.getElementById('histCount').textContent = h.length > 0 ? '(' + h.length + ')' : '';
+}
+
+async function toggleSave(id, btn) {
+  var post = currentPosts.find(function(p){ return p.id === id; });
+  if (!post) return;
+  post.saved = !post.saved;
+  btn.textContent = post.saved ? '\u2B50 Saved' : 'Save draft';
+  btn.className = 'save-btn' + (post.saved ? ' saved' : '');
+  var history = await loadHistory();
+  var idx = history.findIndex(function(h){ return h.id === id; });
+  if (idx >= 0) history[idx].saved = post.saved; else history.unshift(post);
+  await saveHistoryData(history);
+  updateHistCount();
+}
+
+async function saveAllDrafts() {
+  var history = await loadHistory();
+  currentPosts.forEach(function(p) {
+    p.saved = true;
+    var idx = history.findIndex(function(h){ return h.id === p.id; });
+    if (idx >= 0) history[idx].saved = true; else history.unshift(p);
+  });
+  await saveHistoryData(history);
+  document.querySelectorAll('.save-btn').forEach(function(b){ b.textContent = '\u2B50 Saved'; b.classList.add('saved'); });
+  updateHistCount();
+}
+
+/* ── HISTORY ── */
+function setFilter(f) {
+  histFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.toggle('active', c.dataset.filter === f); });
+  renderHistory();
+}
+
+async function renderHistory() {
+  var items = await loadHistory();
+  if (histFilter === 'draft')       items = items.filter(function(i){ return i.saved; });
+  else if (histFilter === 'fb')     items = items.filter(function(i){ return i.platform === 'fb'; });
+  else if (histFilter === 'ig')     items = items.filter(function(i){ return i.platform === 'ig'; });
+  else if (histFilter === 'li')     items = items.filter(function(i){ return i.platform === 'li'; });
+  else if (histFilter === 'x')      items = items.filter(function(i){ return i.platform === 'x';  });
+  else if (histFilter === 'node')   items = items.filter(function(i){ return i.product === 'node'; });
+  else if (histFilter === 'vector') items = items.filter(function(i){ return i.product === 'vector'; });
+  else if (histFilter === 'visual') items = items.filter(function(i){ return i.type === 'visual'; });
+  else if (histFilter === 'email')  items = items.filter(function(i){ return i.type === 'email'; });
+
+  var list = document.getElementById('historyList');
+  if (!items.length) {
+    list.innerHTML = '<div class="history-empty"><div class="history-empty-icon">&#128587;</div><p>No posts here yet.</p><small>Generate posts on the Generate tab — they\'ll appear here automatically.</small></div>';
+    return;
+  }
+
+  list.innerHTML = items.map(function(item) {
+    var clean = item.text.replace(/^Variation \d+:\s*/i,'').trim();
+    var d = new Date(item.ts);
+    var dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    var timeStr = d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    var platLabel = PLAT_LABELS[item.platform] || item.platform;
+    var prodLabel = PROD_LABELS[item.product]   || item.product;
+    return '<div class="history-card" data-id="' + item.id + '">' +
+      '<div class="history-card-header">' +
+        '<div class="history-meta">' +
+          (item.saved ? '<span class="draft-dot"></span>' : '') +
+          '<span class="history-date">' + dateStr + ' \u00b7 ' + timeStr + '</span>' +
+          (item.type==='email' && item.scenario ? '<span class="output-badge '+(SC_BADGE[item.scenario]||'badge-email')+'">' + escHtml(SC_LABELS[item.scenario]||item.scenario) + '</span> ' : '') +
+          '<span class="output-badge badge-' + item.platform + '">' + escHtml(platLabel) + '</span>' +
+          '<span class="output-badge badge-' + item.product   + '">' + escHtml(prodLabel) + '</span>' +
+        '</div>' +
+        '<div class="history-actions">' +
+          '<button class="hist-btn" onclick="doCopyHist(this,\'' + escAttr(clean) + '\')">Copy</button>' +
+          '<button class="hist-btn' + (item.saved ? ' saved-state' : '') + '" onclick="toggleHistSave(\'' + item.id + '\',this)">' + (item.saved ? '\u2B50 Draft' : 'Save draft') + '</button>' +
+          '<button class="hist-del-btn" onclick="deleteHistItem(\'' + item.id + '\')">Delete</button>' +
+        '</div>' +
+      '</div>' +
+      (item.topic ? '<div class="history-topic">Topic: ' + escHtml(item.topic) + '</div>' : '') +
+      '<div class="history-body" id="hbody-' + item.id + '">' + escHtml(clean) + '<div class="fade-overlay"></div></div>' +
+      '<button class="expand-btn" onclick="expandHist(\'' + item.id + '\',this)">Show full post \u2193</button>' +
+    '</div>';
+  }).join('');
+}
+
+function expandHist(id, btn) {
+  var body = document.getElementById('hbody-' + id);
+  body.classList.toggle('expanded');
+  btn.textContent = body.classList.contains('expanded') ? 'Collapse \u2191' : 'Show full post \u2193';
+}
+
+async function toggleHistSave(id, btn) {
+  var history = await loadHistory();
+  var item = history.find(function(h){ return h.id === id; });
+  if (!item) return;
+  item.saved = !item.saved;
+  await saveHistoryData(history);
+  btn.textContent = item.saved ? '\u2B50 Draft' : 'Save draft';
+  btn.className = 'hist-btn' + (item.saved ? ' saved-state' : '');
+  var card = document.querySelector('.history-card[data-id="' + id + '"] .history-meta');
+  var dot = card.querySelector('.draft-dot');
+  if (item.saved && !dot) { var s = document.createElement('span'); s.className='draft-dot'; card.prepend(s); }
+  else if (!item.saved && dot) dot.remove();
+  updateHistCount();
+}
+
+async function deleteHistItem(id) {
+  var history = await loadHistory();
+  history = history.filter(function(h){ return h.id !== id; });
+  await saveHistoryData(history);
+  var card = document.querySelector('.history-card[data-id="' + id + '"]');
+  if (card) card.remove();
+  updateHistCount();
+  if (!document.querySelectorAll('.history-card').length) renderHistory();
+}
+
+async function clearAll() {
+  if (!confirm('Delete all post history? Saved drafts will also be removed.')) return;
+  await saveHistoryData([]);
+  renderHistory();
+  updateHistCount();
+}
+
+/* ── COPY ── */
+function doCopy(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function doCopyHist(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function copyAll() {
+  var bodies = document.querySelectorAll('#postsContainer .post-body');
+  var all = Array.from(bodies).map(function(b,i){ return '--- Variation '+(i+1)+' ---\n'+b.textContent.trim(); }).join('\n\n');
+  navigator.clipboard.writeText(all);
+}
+
+/* ── UTILS ── */
+function extractHashtags(text) {
+  var all = text.match(/#[\w]+/g) || [];
+  return all.filter(function(v,i,a){ return a.indexOf(v)===i; });
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,'');
+}
+
+
+/* ── VISUAL / KLING ── */
+var vMedia = 'image', vProduct = 'vnode';
+
+var vHints = {
+  'image-vnode':   ['Business owner seeing their new website live','Before & after: handwritten flyer vs digital brand','Entrepreneur working on laptop in a coffee shop','Vibrant e-commerce product display, clean background','Small team celebrating a business milestone'],
+  'image-vvector': ['Freight dashboard glowing on a large monitor','Trucks on a highway at golden hour, aerial shot','Logistics command center with live data overlays','Clean TMS UI on a widescreen display, dark mode','Supply chain network map visualization, glowing nodes'],
+  'video-vnode':   ['Transformation: blank screen to full website reveal','Business owner smiling as first online order arrives','Time-lapse of a brand identity being built piece by piece','Pull-back from a laptop to reveal a thriving storefront','Fast montage of design, web, and marketing in motion'],
+  'video-vvector': ['Dashboard metrics updating in real time, dramatic push-in','Trucks dispatched from a hub, aerial tracking shot','Bid accepted animation on TMS screen, celebration moment','Data flowing through a logistics network, cinematic','Fleet manager reviewing VECTOR dashboard, confident close-up'],
+
+  'image-vfbrokerage': ['Loaded semi-truck on open highway at golden hour','Freight broker at dual-monitor workstation, carrier map on screen','Handshake between shipper and carrier rep, professional setting','Aerial shot of a busy freight yard, containers and trucks','Split screen: empty trailer vs fully loaded and moving'],
+  'video-vfbrokerage': ['Timelapse: empty dock to loaded truck pulling out, golden hour','Broker coordinating live load match on screen, fast-cut energy','Truck rolling onto highway at sunrise, slow cinematic pull-back','Network map of carrier routes lighting up across the US','Driver accepting load notification on phone — relief close-up'],
+
+  'image-vfforwarding': ['Container ship arriving at port at dawn, dramatic sky','Freight forwarder reviewing customs documents at desk, focused','Aerial shot of intermodal port with cranes and containers','World map with glowing shipping routes, dark background','Air freight cargo being loaded onto a wide-body aircraft'],
+  'video-vfforwarding': ['Container ship departing port, slow aerial pull-back, cinematic','Fast montage: origin crate packing to customs stamp to delivery','Globe rotating with glowing trade routes, tech-dark aesthetic','Cargo doors opening at destination warehouse, dramatic reveal','Forwarder confirming clearance on laptop — relief and confidence'],
+
+  'image-vbarge': ['Barge loaded with bulk cargo moving down a river at dusk','Aerial shot of a barge fleet on the Mississippi, wide angle','Tug pushing barges under a bridge, warm industrial lighting','Heavy industrial cargo secured on a barge deck, close detail','River port loading crane transferring bulk commodity to barge'],
+  'video-vbarge': ['Aerial drone tracking a loaded barge down a wide river, golden hour','Time-lapse of barge loading at industrial port, sunrise','Slow pull-back from bulk cargo on barge to aerial river view','Barge fleet navigating a lock system, cinematic wide shot','Cut from chaotic truck yard to calm river barge gliding — contrast']
+};
+
+var vPlaceholders = {
+  'image-vnode':       'e.g. A small business owner seeing their new website go live for the first time, feeling pride and excitement...',
+  'image-vvector':     'e.g. A logistics command center with live freight data on screens, professional and high-tech...',
+  'video-vnode':       'e.g. The moment a brand transforms from a blank canvas to a fully launched business online...',
+  'video-vvector':     'e.g. A freight manager confidently dispatching trucks using an intelligent TMS dashboard...',
+  'image-vfbrokerage': 'e.g. A loaded freight truck on an open highway at golden hour, conveying speed, reliability and scale...',
+  'video-vfbrokerage': 'e.g. A time-lapse of an empty dock becoming fully loaded and trucks departing at sunrise...',
+  'image-vfforwarding':'e.g. A container ship arriving at a dramatic port at dawn, world-class freight forwarding at scale...',
+  'video-vfforwarding':'e.g. A cinematic journey from cargo origin to customs clearance to final delivery door...',
+  'image-vbarge':      'e.g. An aerial shot of a loaded barge moving steadily down the Mississippi at golden hour...',
+  'video-vbarge':      'e.g. A drone tracking a barge fleet through a river lock system at sunrise, industrial and cinematic...'
+};
+
+function selectMedia(m) {
+  vMedia = m;
+  document.querySelectorAll('.media-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.media-btn[data-media="' + m + '"]').classList.add('active');
+  document.querySelectorAll('.video-only').forEach(function(el){ el.classList.toggle('show', m === 'video'); });
+  updateVHints();
+}
+function selectVProduct(p) {
+  vProduct = p;
+  document.querySelectorAll('#view-visual .product-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('#view-visual .product-btn[data-prod="' + p + '"]').classList.add('active');
+  updateVHints();
+}
+function updateVHints() {
+  var key = vMedia + '-' + vProduct;
+  var row = document.getElementById('vHintRow');
+  row.innerHTML = (vHints[key] || []).map(function(h){
+    return '<button class="hint-chip" onclick="useVHint(this)">' + h + '</button>';
+  }).join('');
+  document.getElementById('vTopicInput').placeholder = vPlaceholders[key] || '';
+}
+function useVHint(el) { document.getElementById('vTopicInput').value = el.textContent; }
+
+function buildKlingSystemPrompt() {
+  var isVideo = vMedia === 'video';
+  var aspect = document.getElementById('vAspect').value;
+  var style  = document.getElementById('vStyle').value;
+  var mood   = document.getElementById('vMood').value;
+  var dur    = isVideo ? document.getElementById('vDuration').value : null;
+  var cam    = isVideo ? document.getElementById('vCamera').value : null;
+  var pace   = isVideo ? document.getElementById('vPace').value : null;
+
+  var productContext = '';
+  if (vProduct === 'vnode') {
+    productContext = 'Nouvos NODE — an online platform for small businesses offering professional marketing, web design, e-commerce, and business exposure. Brand feel: warm, personal, empowering, aspirational. Visuals should evoke transformation, possibility, and human connection.';
+  } else if (vProduct === 'vvector') {
+    productContext = 'Nouvos VECTOR — a professional TMS for supply chain and logistics companies with real-time dashboards, analytics, automation, and freight bidding. Brand feel: authoritative, precision-driven, technically confident. Visuals should evoke operational mastery, data intelligence, and modern logistics.';
+  } else if (vProduct === 'vfbrokerage') {
+    productContext = 'IBT Logistics Freight Brokerage — connecting shippers with a reliable carrier network, competitive rates, and real-time freight visibility. Brand feel: trusted, capable, industry-native. Visuals should evoke movement, reliability, scale, and the energy of freight in motion — trucks, highways, loading docks, and seamless logistics.';
+  } else if (vProduct === 'vfforwarding') {
+    productContext = 'IBT Logistics Freight Forwarding — end-to-end international shipping covering ocean, air, customs brokerage, and door-to-door delivery. Brand feel: worldly, precise, reassuring. Visuals should evoke global trade, ports and vessels, the precision of customs and documentation, and the satisfaction of cargo arriving at its destination.';
+  } else if (vProduct === 'vbarge') {
+    productContext = 'IBT Logistics Barge Services — inland waterway transport for bulk commodities, oversized, and high-volume cargo. Brand feel: grounded, industrial, efficient, and quietly powerful. Visuals should evoke the majesty and scale of river freight — wide waterways, loaded barges, industrial ports, and the cost-effective power of moving bulk by water.';
+  }
+
+  var mediaType = isVideo ? 'VIDEO' : 'IMAGE';
+  var klingSpecs = isVideo
+    ? 'Aspect ratio: ' + aspect + ' | Duration: ' + dur + ' | Camera: ' + cam + ' | Edit pace: ' + pace + ' | Style: ' + style + ' | Mood/lighting: ' + mood
+    : 'Aspect ratio: ' + aspect + ' | Style: ' + style + ' | Mood/lighting: ' + mood;
+
+  return 'You are an expert AI visual prompt engineer specializing in Kling 3.0 (and future Kling versions) — a state-of-the-art AI video and image generation model known for its cinematic realism, fluid motion, coherent subject tracking, and detailed environmental rendering.\n\n' +
+    'You are generating prompts for: ' + productContext + '\n\n' +
+    'Kling settings to incorporate: ' + klingSpecs + '\n\n' +
+    'Generate EXACTLY 2 Kling prompt variations for a ' + mediaType + '.\n\n' +
+    'For EACH variation, structure your output in this EXACT format:\n\n' +
+    '## Variation 1\n\n' +
+    '**MAIN PROMPT**\n' +
+    '<A single rich paragraph prompt of 80-140 words optimized for Kling. Include: subject description, environment/setting, lighting quality, color palette, texture details, emotional tone, and ' + (isVideo ? 'motion description with camera movement' : 'composition and focal depth') + '. Write in present-tense descriptive language as if narrating the scene to a cinematographer.>\n\n' +
+    '**NEGATIVE PROMPT**\n' +
+    '<15-25 words of things to exclude: blur artifacts, watermarks, text, distorted faces, generic stock feel, etc.>\n\n' +
+    (isVideo ? '**MOTION NOTES**\n<2-3 sentences describing the specific motion, timing, and key frames for Kling to generate.>\n\n' : '') +
+    '**PLATFORM USE**\n' +
+    '<One sentence: which platform(s) this visual is best suited for and why, given the aspect ratio and style.>\n\n' +
+    '**KLING TIPS**\n' +
+    '<2-3 practical tips specific to this prompt for getting the best output from Kling 3.0, such as seed suggestions, cfg guidance, or re-run advice.>\n\n' +
+    '---KNEXT---\n\n' +
+    '## Variation 2\n\n' +
+    '[Same structure as above but a distinct creative direction — different subject angle, composition, or emotional beat]\n\n' +
+    'CRITICAL: Make prompts Kling-native. Use sensory, visual language. Avoid abstract concepts — describe what the camera SEES. Every word should help Kling render a specific visual element.' +
+    getLangInstruction();
+}
+
+async function generateVisual() {
+  var topic = document.getElementById('vTopicInput').value.trim();
+  if (!topic) { document.getElementById('vTopicInput').focus(); return; }
+
+  var apiKey = getApiKey();
+  if (!apiKey) {
+    var eb = document.getElementById('vErrorBox');
+    eb.textContent = 'Please enter your Anthropic API key at the top before generating.';
+    eb.classList.add('visible');
+    return;
+  }
+
+  var btn     = document.getElementById('genVisualBtn');
+  var btnText = document.getElementById('vBtnText');
+  var errBox  = document.getElementById('vErrorBox');
+  var outArea = document.getElementById('klingOutput');
+
+  btn.disabled = true; btn.classList.add('generating');
+  btnText.textContent = 'Generating\u2026';
+  errBox.className = 'error-box';
+  outArea.classList.remove('visible');
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1800,
+        system: buildKlingSystemPrompt(),
+        messages: [{ role: 'user', content: 'Generate the Kling prompt for this concept: ' + topic }]
+      })
+    });
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    var raw = data.content.map(function(c){ return c.text || ''; }).join('');
+    var parts = raw.split('---KNEXT---').map(function(p){ return p.trim(); }).filter(Boolean);
+    renderKlingOutput(parts, topic);
+    autoSaveKlingHistory(parts, topic);
+  } catch(err) {
+    errBox.textContent = 'Something went wrong: ' + err.message;
+    errBox.classList.add('visible');
+  } finally {
+    btn.disabled = false; btn.classList.remove('generating');
+    btnText.textContent = '\u2726 Generate Kling Prompt';
+  }
+}
+
+function renderKlingOutput(parts, topic) {
+  var mediaBadge = document.getElementById('vMediaBadge');
+  var prodBadge  = document.getElementById('vProdBadge');
+  mediaBadge.textContent = vMedia === 'video' ? 'Video' : 'Image';
+  mediaBadge.className = 'output-badge badge-' + vMedia;
+  var vProdLabels = { vnode:'Nouvos NODE', vvector:'Nouvos VECTOR', vfbrokerage:'Freight Brokerage', vfforwarding:'Freight Forwarding', vbarge:'Barge Services' };
+  var vProdBadges = { vnode:'badge-node', vvector:'badge-vector', vfbrokerage:'badge-intro', vfforwarding:'badge-li', vbarge:'badge-vector' };
+  prodBadge.textContent = vProdLabels[vProduct] || vProduct;
+  prodBadge.className = 'output-badge ' + (vProdBadges[vProduct] || 'badge-email');
+
+  var aspect   = document.getElementById('vAspect').value;
+  var style    = document.getElementById('vStyle').value;
+  var mood     = document.getElementById('vMood').value;
+  var isVideo  = vMedia === 'video';
+
+  var container = document.getElementById('klingContainer');
+  container.innerHTML = '';
+
+  parts.forEach(function(part, i) {
+    // Extract sections
+    var mainMatch = part.match(/\*\*MAIN PROMPT\*\*\s*([\s\S]*?)(?=\*\*NEGATIVE|\*\*MOTION|\*\*PLATFORM|\*\*KLING|$)/i);
+    var negMatch  = part.match(/\*\*NEGATIVE PROMPT\*\*\s*([\s\S]*?)(?=\*\*MOTION|\*\*PLATFORM|\*\*KLING|$)/i);
+    var motMatch  = part.match(/\*\*MOTION NOTES\*\*\s*([\s\S]*?)(?=\*\*PLATFORM|\*\*KLING|$)/i);
+    var platMatch = part.match(/\*\*PLATFORM USE\*\*\s*([\s\S]*?)(?=\*\*KLING|$)/i);
+    var tipMatch  = part.match(/\*\*KLING TIPS\*\*\s*([\s\S]*?)$/i);
+
+    var mainText = mainMatch ? mainMatch[1].trim() : part.replace(/##.*\n/,'').trim();
+    var negText  = negMatch  ? negMatch[1].trim()  : '';
+    var motText  = motMatch  ? motMatch[1].trim()  : '';
+    var platText = platMatch ? platMatch[1].trim()  : '';
+    var tipText  = tipMatch  ? tipMatch[1].trim()   : '';
+
+    var card = document.createElement('div');
+    card.className = 'kling-card';
+    card.innerHTML =
+      '<div class="kling-card-header">' +
+        '<div class="kling-card-title">' +
+          (vMedia === 'video' ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="#9b6dd4"><polygon points="5 3 19 12 5 21 5 3"/></svg>' : '<svg width="13" height="13" viewBox="0 0 24 24" fill="#3da4a8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>') +
+          'Variation ' + (i+1) +
+        '</div>' +
+        '<div class="card-btns">' +
+          '<button class="save-btn" onclick="saveOneKling(this,\'' + escAttr(mainText) + '\',\'' + escAttr(negText) + '\')">Save draft</button>' +
+          '<button class="copy-btn" onclick="doCopy(this,\'' + escAttr(mainText) + '\')">Copy prompt</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="kling-body">' +
+        '<div class="kling-section">' +
+          '<div class="kling-section-label">Main prompt</div>' +
+          '<div class="kling-prompt-text" id="kMain' + i + '">' + escHtml(mainText) + '</div>' +
+          '<div class="kling-specs">' +
+            '<div class="kling-spec-pill">Aspect <span>' + aspect + '</span></div>' +
+            '<div class="kling-spec-pill">Style <span>' + escHtml(style) + '</span></div>' +
+            '<div class="kling-spec-pill">Mood <span>' + escHtml(mood) + '</span></div>' +
+            (isVideo ? '<div class="kling-spec-pill">Duration <span>' + document.getElementById('vDuration').value + '</span></div>' : '') +
+            (isVideo ? '<div class="kling-spec-pill">Camera <span>' + escHtml(document.getElementById('vCamera').value) + '</span></div>' : '') +
+          '</div>' +
+        '</div>' +
+        (negText ? '<div class="kling-section"><div class="kling-section-label">Negative prompt</div><div class="kling-prompt-text">' + escHtml(negText) + '</div></div>' : '') +
+        (motText ? '<div class="kling-section"><div class="kling-section-label">Motion notes</div><div class="kling-prompt-text">' + escHtml(motText) + '</div></div>' : '') +
+        (platText ? '<div class="kling-section"><div class="kling-section-label">Platform use</div><div class="kling-prompt-text">' + escHtml(platText) + '</div></div>' : '') +
+        (tipText  ? '<div class="kling-tip"><strong>Kling Tips:</strong> ' + escHtml(tipText) + '</div>' : '') +
+      '</div>';
+    container.appendChild(card);
+  });
+
+  document.getElementById('klingOutput').classList.add('visible');
+  document.getElementById('klingOutput').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function autoSaveKlingHistory(parts, topic) {
+  var history = await loadHistory();
+  parts.forEach(function(p) {
+    var item = {
+      id: genId(), ts: Date.now(), type: 'visual',
+      text: p, platform: 'kling', product: {'vnode':'node','vvector':'vector','vfbrokerage':'fbrokerage','vfforwarding':'fforwarding','vbarge':'barge'}[vProduct] || vProduct,
+      mediaType: vMedia, topic: topic,
+      aspect: document.getElementById('vAspect').value,
+      style:  document.getElementById('vStyle').value,
+      saved: false
+    };
+    history.unshift(item);
+  });
+  await saveHistoryData(history.slice(0,100));
+  updateHistCount();
+}
+
+async function saveVisualDraft() {
+  var history = await loadHistory();
+  history.forEach(function(h) {
+    if (h.type === 'visual' && h.ts > Date.now() - 30000) h.saved = true;
+  });
+  await saveHistoryData(history);
+  updateHistCount();
+}
+
+function saveOneKling(btn, mainText, negText) {
+  // mark it saved visually
+  btn.textContent = '\u2B50 Saved'; btn.classList.add('saved');
+}
+
+function copyKlingAll() {
+  var mains = document.querySelectorAll('#klingContainer .kling-prompt-text');
+  if (!mains.length) return;
+  var out = Array.from(mains).map(function(el, i){ return '--- Variation ' + (i+1) + ' ---\n' + el.textContent.trim(); }).join('\n\n');
+  navigator.clipboard.writeText(out);
+}
+
+
+
+/* ── EMAIL GENERATOR ── */
+var eScenario = 'intro', eProduct = 'node', eTone = 'professional', eSender = 'ibt';
+
+var SC_LABELS = { intro:'Intro Email', followup:'Follow-Up', reengage:'Re-Engagement' };
+var SC_BADGE  = { intro:'badge-intro', followup:'badge-followup', reengage:'badge-reengage' };
+
+function selectScenario(s) {
+  eScenario = s;
+  document.querySelectorAll('.scenario-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.scenario-btn[data-sc="' + s + '"]').classList.add('active');
+  var ff = document.getElementById('eFollowupFields');
+  ff.classList.toggle('show', s === 'followup' || s === 'reengage');
+}
+function selectEProd(p) {
+  eProduct = p;
+  document.querySelectorAll('.eprod-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.eprod-btn[data-eprod="' + p + '"]').classList.add('active');
+}
+function selectSender(s) {
+  eSender = s;
+  document.querySelectorAll('.sender-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.sender-btn[data-sender="' + s + '"]').classList.add('active');
+}
+function selectTone(t) {
+  eTone = t;
+  document.querySelectorAll('.tone-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.tone-btn[data-tone="' + t + '"]').classList.add('active');
+}
+
+function buildEmailSystemPrompt() {
+  var recipName   = document.getElementById('eRecipName').value.trim() || 'there';
+  var recipTitle  = document.getElementById('eRecipTitle').value.trim();
+  var company     = document.getElementById('eCompany').value.trim() || 'their company';
+  var industry    = document.getElementById('eIndustry').value.trim();
+  var context     = document.getElementById('eContext').value.trim();
+  var prevInteract= document.getElementById('ePrevInteraction') ? document.getElementById('ePrevInteraction').value.trim() : '';
+  var lastContact = document.getElementById('eLastContact') ? document.getElementById('eLastContact').value.trim() : '';
+  var nextStep    = document.getElementById('eNextStep') ? document.getElementById('eNextStep').value.trim() : '';
+
+  var productContext = '';
+  if (eProduct === 'fbrokerage') {
+    productContext = 'IBT Logistics Freight Brokerage — connecting shippers with a trusted carrier network, offering competitive rate negotiation, load matching, real-time shipment tracking, and reliable capacity across all modes (FTL, LTL, specialized). IBT\u2019s deep carrier relationships and market expertise help clients move freight faster and smarter.';
+  } else if (eProduct === 'fforwarding') {
+    productContext = 'IBT Logistics Freight Forwarding — end-to-end international shipping solutions including ocean, air, and ground transport, customs brokerage, documentation management, and door-to-door delivery. IBT handles the complexity of global logistics so clients can focus on their business.';
+  } else if (eProduct === 'barge') {
+    productContext = 'IBT Logistics Barge Services — cost-effective inland waterway transport for bulk commodities, heavy/oversized cargo, and high-volume shipments. Barge offers a greener, lower-cost alternative to truck and rail for eligible lanes, with IBT managing the full operation from origin to destination.';
+  } else if (eProduct === 'node') {
+    productContext = 'Nouvos NODE — an online services platform under Nouvos ONE that gives businesses professional marketing, web design, e-commerce development, and digital exposure. Makes enterprise-level marketing accessible to businesses of all sizes. Particularly relevant for companies wanting to strengthen their digital presence, launch e-commerce, or scale marketing without a large internal team.';
+  } else if (eProduct === 'vector') {
+    productContext = 'Nouvos VECTOR — a purpose-built TMS (Transportation Management System) under Nouvos ONE that delivers operational efficiencies through real-time dashboards, freight analytics, intelligent workflow automation, and a streamlined load bidding engine. Designed for freight brokers, 3PLs, fleet operators, and supply chain companies who want to eliminate manual processes and gain full operational visibility.';
+  } else {
+    productContext = 'Nouvos ONE — an ecosystem with two products: (1) Nouvos NODE, an online services platform for marketing, web design, and e-commerce; and (2) Nouvos VECTOR, a professional TMS for freight brokers, 3PLs, and supply chain operators offering dashboards, analytics, automation, and intelligent bidding. Both products serve different needs within the same organization.';
+  }
+
+  var scenarioInstructions = '';
+  if (eScenario === 'intro') {
+    scenarioInstructions = 'This is a FIRST CONTACT email. The recipient has never heard from ' + senderName + ' about this before. Goal: warm introduction — establish credibility for ' + senderName + ', briefly introduce the relevant product/service, and open the door for a conversation. Do NOT be pushy. Do NOT list every feature. Focus on one sharp pain point and one compelling benefit that earns a reply.';
+  } else if (eScenario === 'followup') {
+    scenarioInstructions = 'This is a FOLLOW-UP email after a prior interaction. Reference the previous touchpoint naturally. The goal is to re-open the conversation, add new value or insight they did not have before, and clearly propose the next step. Be specific and professional. Avoid generic "just checking in" language.';
+    if (prevInteract) scenarioInstructions += '\nPrevious interaction context: ' + prevInteract;
+    if (lastContact)  scenarioInstructions += '\nLast contact: ' + lastContact;
+    if (nextStep)     scenarioInstructions += '\nDesired next step: ' + nextStep;
+  } else {
+    scenarioInstructions = 'This is a RE-ENGAGEMENT email to a contact that has gone cold or silent. The tone should acknowledge the gap without being apologetic. Lead with something new — a product update, a relevant industry insight, or a fresh angle on their pain point. Give them a reason to respond today. Be human, not robotic.';
+    if (prevInteract) scenarioInstructions += '\nPrevious interaction context: ' + prevInteract;
+    if (lastContact)  scenarioInstructions += '\nTime since last contact: ' + lastContact;
+    if (nextStep)     scenarioInstructions += '\nDesired next step: ' + nextStep;
+  }
+
+  var toneGuide = {
+    professional: 'Professional and polished. Business-formal but human. Clear and structured.',
+    friendly: 'Friendly and warm. Conversational, like a trusted industry colleague reaching out.',
+    direct: 'Direct and concise. Every sentence earns its place. Short paragraphs. No filler.',
+    consultative: 'Consultative and insight-led. Position IBT as an industry expert who understands their specific challenges. Lead with insight before the ask.'
+  }[eTone] || 'Professional';
+
+  var senderName = eSender === 'ibt' ? 'IBT Logistics' : 'Nouvos ONE';
+  var senderDesc = eSender === 'ibt'
+    ? 'a professional Freight Broker and Freight Forwarder and strategic partner of Nouvos ONE'
+    : 'the One Network Ecosystem — a technology and services platform serving logistics and business clients';
+  var senderSignoff = eSender === 'ibt'
+    ? '[Your Name] | IBT Logistics | ibtlogistics.com'
+    : '[Your Name] | Nouvos ONE | nouvosone.com';
+  var senderContext = eSender === 'ibt'
+    ? 'IBT Logistics is a trusted freight partner. When promoting Nouvos products, position them as a valued service IBT brings to its clients — not just a referral.'
+    : 'Nouvos ONE is the technology platform. When promoting IBT services, position them as an operational partner within the Nouvos ecosystem.';
+
+  return 'You are an expert B2B email copywriter specializing in logistics, freight, and supply chain sales. You write emails on behalf of ' + senderName + ' — ' + senderDesc + '.\n\n' +
+    'SENDER: ' + senderName + '\n' +
+    'SENDER CONTEXT: ' + senderContext + '\n' +
+    'NOUVOS PARTNER: IBT is introducing Nouvos ONE products to relevant prospects as an added value offering.\n\n' +
+    'PRODUCT BEING INTRODUCED:\n' + productContext + '\n\n' +
+    'RECIPIENT:\n' +
+    'Name: ' + recipName + '\n' +
+    (recipTitle  ? 'Title: '    + recipTitle  + '\n' : '') +
+    'Company: '  + company  + '\n' +
+    (industry    ? 'Industry: ' + industry    + '\n' : '') +
+    (context     ? 'Key context about this company: ' + context + '\n' : '') +
+    '\nSCENARIO:\n' + scenarioInstructions + '\n\n' +
+    'TONE: ' + toneGuide + '\n\n' +
+    'RULES:\n' +
+    '1. Write EXACTLY 2 email variations. Each must feel genuinely different — different subject line, different opening hook, different angle.\n' +
+    '2. Each email must have: a subject line, a short opener (1-2 lines), a value body (3-5 short paragraphs), and a clear single CTA.\n' +
+    '3. Address recipient by first name in the opening.\n' +
+    '4. Reference ' + company + ' specifically — use their company name, industry, or implied pain points naturally in the body.\n' +
+    '5. Sign off as: ' + senderSignoff + '\n' +
+    '6. DO NOT use generic openers like "I hope this email finds you well." Be specific and earned.\n' +
+    '7. Keep each email under 220 words in the body (excluding subject and sign-off).\n' +
+    '8. No bullet point lists inside the email body — write in flowing paragraphs.\n\n' +
+    'Format EXACTLY as:\n\n' +
+    'VARIATION 1\n' +
+    'TONE_TAG: [one word describing this variation\'s angle, e.g. "Empathy-led" or "Data-forward"]\n' +
+    'SUBJECT: [subject line]\n' +
+    'BODY:\n[full email body]\n\n' +
+    '---ENEXT---\n\n' +
+    'VARIATION 2\n' +
+    'TONE_TAG: [one word]\n' +
+    'SUBJECT: [subject line]\n' +
+    'BODY:\n[full email body]';
+}
+
+async function generateEmail() {
+  var company = document.getElementById('eCompany').value.trim();
+  if (!company) { document.getElementById('eCompany').focus(); return; }
+
+  var apiKey = getApiKey();
+  if (!apiKey) {
+    var eb = document.getElementById('eErrorBox');
+    eb.textContent = 'Please enter your Anthropic API key at the top before generating.';
+    eb.classList.add('visible');
+    return;
+  }
+
+  var btn     = document.getElementById('genEmailBtn');
+  var btnText = document.getElementById('eBtnText');
+  var errBox  = document.getElementById('eErrorBox');
+  var outArea = document.getElementById('emailOutput');
+
+  btn.disabled = true; btn.classList.add('generating');
+  btnText.textContent = 'Writing emails\u2026';
+  errBox.className = 'error-box';
+  outArea.classList.remove('visible');
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: buildEmailSystemPrompt(),
+        messages: [{ role: 'user', content: 'Generate the 2 email variations now.' }]
+      })
+    });
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    var raw = data.content.map(function(c){ return c.text || ''; }).join('');
+    var parts = raw.split('---ENEXT---').map(function(p){ return p.trim(); }).filter(Boolean);
+    renderEmailOutput(parts);
+    autoSaveEmailHistory(parts);
+  } catch(err) {
+    errBox.textContent = 'Something went wrong: ' + err.message;
+    errBox.classList.add('visible');
+  } finally {
+    btn.disabled = false; btn.classList.remove('generating');
+    btnText.textContent = '\u2709 Generate Email';
+  }
+}
+
+function renderEmailOutput(parts) {
+  var scBadge   = document.getElementById('eScBadge');
+  var prodBadge = document.getElementById('eProdBadge2');
+  scBadge.textContent = SC_LABELS[eScenario] || eScenario;
+  scBadge.className   = 'output-badge ' + (SC_BADGE[eScenario] || 'badge-email');
+  var prodLabels = { fbrokerage:'Freight Brokerage', fforwarding:'Freight Forwarding', barge:'Barge Services', node:'Nouvos NODE', vector:'Nouvos VECTOR', both:'NODE + VECTOR' };
+  var prodBadgeClass = { fbrokerage:'badge-intro', fforwarding:'badge-li', barge:'badge-vector', node:'badge-node', vector:'badge-vector', both:'badge-email' };
+  prodBadge.textContent = prodLabels[eProduct] || eProduct;
+  prodBadge.className   = 'output-badge ' + (prodBadgeClass[eProduct] || 'badge-email');
+
+  var container = document.getElementById('emailContainer');
+  container.innerHTML = '';
+
+  parts.forEach(function(part, i) {
+    var toneTagMatch = part.match(/TONE_TAG:\s*(.+)/i);
+    var subjectMatch = part.match(/SUBJECT:\s*(.+)/i);
+    var bodyMatch    = part.match(/BODY:\s*([\s\S]*?)$/i);
+
+    var toneTag = toneTagMatch ? toneTagMatch[1].trim() : '';
+    var subject = subjectMatch ? subjectMatch[1].trim() : '(No subject)';
+    var body    = bodyMatch    ? bodyMatch[1].trim()    : part.replace(/VARIATION \d+\n?/i,'').replace(/TONE_TAG:.*\n?/i,'').replace(/SUBJECT:.*\n?/i,'').trim();
+
+    var fullEmail = 'Subject: ' + subject + '\n\n' + body;
+
+    var card = document.createElement('div');
+    card.className = 'email-card';
+    card.innerHTML =
+      '<div class="email-card-header">' +
+        '<div class="email-var-label">' +
+          'Variation ' + (i+1) +
+          (toneTag ? ' <span class="output-badge badge-email email-tone-badge">' + escHtml(toneTag) + '</span>' : '') +
+        '</div>' +
+        '<div class="card-btns">' +
+          '<button class="save-btn" onclick="markEmailSaved(this)">Save draft</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="email-body">' +
+        '<div class="email-subject-row">' +
+          '<div class="email-subject-label">Subject</div>' +
+          '<div class="email-subject-text">' + escHtml(subject) + '</div>' +
+          '<button class="email-copy-subj" onclick="doCopy(this,\'' + escAttr(subject) + '\')">Copy</button>' +
+        '</div>' +
+        '<div class="email-text">' + escHtml(body) + '</div>' +
+      '</div>' +
+      '<div class="email-footer-bar">' +
+        '<button class="action-btn" onclick="doCopy(this,\'' + escAttr(fullEmail) + '\')">Copy full email</button>' +
+      '</div>';
+    container.appendChild(card);
+  });
+
+  document.getElementById('emailOutput').classList.add('visible');
+  document.getElementById('emailOutput').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function autoSaveEmailHistory(parts) {
+  var history = await loadHistory();
+  var company = document.getElementById('eCompany').value.trim() || 'Unknown';
+  parts.forEach(function(p) {
+    history.unshift({
+      id: genId(), ts: Date.now(), type: 'email',
+      text: p, platform: 'email',
+      product: eProduct, scenario: eScenario,
+      topic: company + ' — ' + (SC_LABELS[eScenario] || eScenario),
+      saved: false
+    });
+  });
+  await saveHistoryData(history.slice(0,100));
+  updateHistCount();
+}
+
+async function saveEmailDrafts() {
+  var history = await loadHistory();
+  history.forEach(function(h) {
+    if (h.type === 'email' && h.ts > Date.now() - 30000) h.saved = true;
+  });
+  await saveHistoryData(history);
+  document.querySelectorAll('#emailContainer .save-btn').forEach(function(b){ b.textContent = '\u2B50 Saved'; b.classList.add('saved'); });
+  updateHistCount();
+}
+
+function markEmailSaved(btn) { btn.textContent = '\u2B50 Saved'; btn.classList.add('saved'); }
+
+function copyAllEmails() {
+  var bodies = document.querySelectorAll('#emailContainer .email-text');
+  var subjs  = document.querySelectorAll('#emailContainer .email-subject-text');
+  var out = Array.from(bodies).map(function(b,i){
+    return '--- Variation '+(i+1)+' ---\nSubject: '+(subjs[i]?subjs[i].textContent:'')+'\n\n'+b.textContent.trim();
+  }).join('\n\n');
+  navigator.clipboard.writeText(out);
+}
+
+
+
+/* ── LANGUAGE TOGGLE ── */
+function toggleLang() {
+  appLang = appLang === 'en' ? 'es' : 'en';
+  var isES = appLang === 'es';
+  document.getElementById('langTrack').classList.toggle('es', isES);
+  document.getElementById('labelEN').classList.toggle('active', !isES);
+  document.getElementById('labelES').classList.toggle('active', isES);
+  var badge = document.getElementById('langBadge');
+  badge.textContent = isES ? 'ES' : 'EN';
+  badge.className = 'lang-badge ' + appLang;
+}
+
+function getLangInstruction() {
+  if (appLang !== 'es') return '';
+  return '\n\nLANGUAGE REQUIREMENT: You MUST write the ENTIRE response in Venezuelan Spanish (Espa\u00f1ol venezolano). Use natural Venezuelan vocabulary, expressions, and colloquialisms. Write as a Venezuelan would — not generic Latin American or Castilian Spanish. Avoid Spain-specific expressions (vosotros, vale, tronco, etc.). Use Venezuelan-native terms and a warm, direct Caribbean-Coast Spanish register. All hashtags should also be in Spanish where applicable.';
+}
+
+/* -- API KEY -- */
+var _apiKey = '';
+function getApiKey() { return _apiKey; }
+function saveApiKey() {
+  var val = document.getElementById('apikeyInput').value.trim();
+  if (!val) { showKeyStatus('Enter a key first', false); return; }
+  if (!val.startsWith('sk-ant-')) { showKeyStatus('Key should start with sk-ant-…', false); return; }
+  _apiKey = val;
+  document.getElementById('apikeyInput').value = '•'.repeat(Math.min(val.length, 32));
+  showKeyStatus('Key saved — ready to generate', true);
+}
+function showKeyStatus(msg, ok) {
+  var el = document.getElementById('apikeyStatus');
+  el.innerHTML = '<div class="apikey-status"><span class="status-dot ' + (ok?'ok':'err') + '"></span>' + msg + '</div>';
+}
+
+/* -- INIT -- */
+updateHints();
+updateVHints();
+updateHistCount();
+</script>
+</body>
+</html>
